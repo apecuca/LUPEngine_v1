@@ -1,13 +1,17 @@
 #pragma once
 
 #include "Window.hpp"
+#include "Shader.hpp"
 
-namespace LUPElve {
-	class LUPEngine
-	{
+class LUPEngine
+{
 	public:
 		static constexpr int WIDTH = 800;
 		static constexpr int HEIGHT = 800;
+
+		// Constructor e destructor
+		LUPEngine();
+		~LUPEngine();
 
 		void run();
 
@@ -15,6 +19,6 @@ namespace LUPElve {
 		// No futuro, trocar isso aqui pra uma variável vazia
 		// e iniciar ela em um método Init, ou no construtor.
 		// Por enquanto, a janela (variável abaixo) é criada junto com este objeto
-		LveWindow lveWindow{ WIDTH, HEIGHT, "LUPEngine example" };
-	};
-} // namespace lve
+		Window window{ WIDTH, HEIGHT, "LUPEngine example" };
+		Shader testShader;
+};

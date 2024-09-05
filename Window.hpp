@@ -4,52 +4,25 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include"shader.hpp"
-#include"VAO.hpp"
-#include"VBO.hpp"
-#include"EBO.hpp"
-
-namespace  LUPElve {
-	class LveWindow {
+class Window {
 	public:
-		LveWindow(int w, int h, std::string name);
-		~LveWindow();
+		Window(int w, int h, std::string name);
+		~Window();
 
-		LveWindow(const LveWindow&) = delete;
-		LveWindow& operator = (const LveWindow&) = delete;
+		Window(const Window&) = delete;
+		Window& operator = (const Window&) = delete;
 
-		bool shouldClose() { return glfwWindowShouldClose(window); }
+		bool shouldClose() { return glfwWindowShouldClose(windowPtr); }
 
-		void draw();
+		void ClearWindow();
+		void SwapBuffers();
 
 	private:
-		void initWindow();
+		void InitWindow();
 
 		const int width;
 		const int height;
 
 		std::string windowName;
-		GLFWwindow* window;
-
-		// SOMENTE TESTES DAQUI PRA BAIXO
-
-		GLfloat vertices[18] = {
-			-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
-			0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
-			0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f,
-			-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,
-			0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,
-			0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f
-		};
-
-		GLuint indices[9] = {
-			0, 3, 5,
-			3, 2, 4,
-			5, 4, 1
-		};
-
-		void CreateTestObject();
-		void DestroyTestObject();
-	};
-
-} // namespace lve
+		GLFWwindow* windowPtr;
+};

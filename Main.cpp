@@ -7,9 +7,7 @@
 
 int main()
 {
-	std::cout << "Hello world! Starting engine now :3" << std::endl;
-
-	LUPElve::LUPEngine app{};
+	LUPEngine app{};
 
 	try {
 		app.run();

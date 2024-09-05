@@ -1,17 +1,42 @@
 #include "LUPEngine.hpp"
 
-namespace LUPElve {
+LUPEngine::LUPEngine()
+{
+	// Start
+	std::cout << "Hello world! Starting engine now :3..." << std::endl;
 
-	void LUPEngine::run() {
-		while (!lveWindow.shouldClose()) {
-			// eventos de usuário
-			glfwPollEvents();
+	// Inicialização das variáveis
+	//
 
-			// simular aqui em baixo
+	// Finish startup
+	std::cout << "Engine succesfully started!" << std::endl;
+}
 
-			// desenhar na tela
-			lveWindow.draw();
-		}
+LUPEngine::~LUPEngine()
+{
+	// Fazer finalizações aqui
+	//
+
+	// Final
+	std::cout << "Engine succesfully stopped. Till next time! ^w^\n";
+}
+
+void LUPEngine::run()
+{
+	while (!window.shouldClose()) {
+		// Registrar os inputs
+		glfwPollEvents();
+
+		// Simular aqui em baixo
+		//
+
+		// Limpar fundo
+		window.ClearWindow();
+
+		// Renderizar objetos
+		testShader.Render();
+
+		// Inverter os buffers de vídeo
+		window.SwapBuffers();
 	}
-
-} // namespace lve
+}

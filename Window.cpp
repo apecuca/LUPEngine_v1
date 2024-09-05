@@ -1,63 +1,52 @@
 #include "Window.hpp"
 
-namespace LUPElve {
+// constructor
+Window::Window(int w, int h, std::string name) : width{ w }, height{ h }, windowName{ name }
+{
+	InitWindow();
+}
 
-	// constructor
-	LveWindow::LveWindow(int w, int h, std::string name) : width{ w }, height{ h }, windowName{ name } {
-		initWindow();
-		CreateTestObject();
-	}
+// destructor
+Window::~Window()
+{
+	// Esses aqui tão bem óbvios
+	glfwDestroyWindow(windowPtr);
+	glfwTerminate();
+}
 
-	// destructor
-	LveWindow::~LveWindow() {
-		// destruindo objetos de teste
-		DestroyTestObject();
+void Window::InitWindow() {
+	// Inicia o glfw
+	glfwInit();
 
-		// Esses aqui tão bem óbvios
-		glfwDestroyWindow(window);
-		glfwTerminate();
-	}
+	// Define as versões usadas (3.3)
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	void LveWindow::initWindow() {
-		// Inicia o glfw
-		glfwInit();
+	// Inicia a variável window com a criação de uma janela glfw
+	windowPtr = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
 
-		// Define as versões usadas (3.3)
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// Define o contexto atual do glfw
+	glfwMakeContextCurrent(windowPtr);
 
-		// Inicia a variável window com a criação de uma janela
-		window = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
+	// GLAD faz as configurações do OpenGL
+	gladLoadGL();
 
-		// Define o contexto atual do glfw
-		glfwMakeContextCurrent(window);
+	// define o tamanho e origem do viewport
+	glViewport(0, 0, width, height);
+}
 
-		// GLAD faz as configurações do OpenGL
-		gladLoadGL();
+void Window::ClearWindow()
+{
+	// Define a cor de fundo
+	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+	// Desenha a cor de fundo por cima do buffer
+	glClear(GL_COLOR_BUFFER_BIT);
+}
 
-		// define o tamanho do viewport
-		glViewport(0, 0, width, height);
-	}
-
-	void LveWindow::CreateTestObject() {
-		//
-	}
-
-	void LveWindow::DestroyTestObject() {
-		//
-	}
-
-	void LveWindow::draw() {
-
-		// cor do fundo
-		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		//
-
-		// troca o buffer de trás pelo da frente
-		glfwSwapBuffers(window);
-	}
-
-};
+void Window::SwapBuffers()
+{
+	// Inverte os buffers de vídeo
+	// (trás vai pra frente)
+	glfwSwapBuffers(windowPtr);
+}

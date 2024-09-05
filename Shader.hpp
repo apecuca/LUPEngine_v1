@@ -1,23 +1,36 @@
-#ifndef SHADER_CLASS_H
-#define SHADER_CLASS_H
+#include <glad/glad.h>
 
-#include<glad/glad.h>
-#include<string>
-#include<fstream>
-#include<sstream>
-#include<iostream>
-#include<cerrno>
+#include <fstream>
+#include <iostream>
 
 std::string get_file_contents(const char* filename);
 
-class Shader {
-
+class Shader
+{
 public:
-	GLuint ID;
-	Shader(const char* vertexFile, const char* fragmentFile);
+	// Constructor e destructor
+	Shader(
+		const char* vertexFile = "Shaders/default.vert",
+		const char* fragmentFile = "Shaders/default.frag"
+	);
+	~Shader();
 
-	void Activate();
-	void Delete();
+	// Método para renderizar
+	void Render();
+
+private:
+	// Coisas do OpenGL
+	// Vertex Buffer Object,
+	// Vertex Array Object
+	// Buffer de índices
+	GLuint shaderProgram;
+	GLuint VAO, VBO, EBO	;
+
+	void CompileErrors(GLuint shader, const char* type);
+
+	void GenerateDefaultCubeData();
+
+	// Debug
+	void GenerateHelloTriangleData();
+	void RenderHelloTriangle();
 };
-
-#endif
