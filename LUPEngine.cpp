@@ -15,7 +15,11 @@ LUPEngine::LUPEngine()
 LUPEngine::~LUPEngine()
 {
 	// Fazer finalizações aqui
-	//
+	
+	// Destruir shader de teste
+	testShader.~Shader();
+	// Destruir Window
+	window.~Window();
 
 	// Final
 	std::cout << "Engine succesfully stopped. Till next time! ^w^\n";
