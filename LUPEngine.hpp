@@ -21,4 +21,5 @@ class LUPEngine
 		// Por enquanto, a janela (variável abaixo) é criada junto com este objeto
 		Window window{ WIDTH, HEIGHT, "LUPEngine example" };
 		Shader testShader;
+		//Texture testTexture;
 };

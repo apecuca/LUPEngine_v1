@@ -43,21 +43,21 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	CompileErrors(fragmentShader, "FRAGMENT");
 
 	// Create Shader Program Object and get its reference
-	shaderProgram = glCreateProgram();
+	ID = glCreateProgram();
 	// Attach the Vertex and Fragment Shaders to the Shader Program
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
+	glAttachShader(ID, vertexShader);
+	glAttachShader(ID, fragmentShader);
 	// Wrap-up/Link all the shaders together into the Shader Program
-	glLinkProgram(shaderProgram);
+	glLinkProgram(ID);
 	// Checks if Shaders linked succesfully
-	CompileErrors(shaderProgram, "PROGRAM");
+	CompileErrors(ID, "PROGRAM");
 
 	// Delete the now useless Vertex and Fragment Shader objects
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
 	// Gerar Data do Hello Triangle :)
-	GenerateHelloTriangleData();
+	GenerateTestData();
 }
 
 Shader::~Shader()
@@ -65,7 +65,7 @@ Shader::~Shader()
 	// Deletar os buffers criados
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
+    glDeleteProgram(ID);
 }
 
 // Checks if the different Shaders have compiled properly
@@ -95,73 +95,93 @@ void Shader::CompileErrors(GLuint shader, const char* type)
 	}
 }
 
-void Shader::GenerateDefaultCubeData()
+void Shader::Activate()
 {
-	//
+	glUseProgram(ID);
+}
+
+void Shader::BindVAO()
+{
+	glBindVertexArray(VAO);
 }
 
 void Shader::Render()
 {
-	RenderHelloTriangle();
+	RenderTest();
+}
+
+GLuint Shader::getScaleID()
+{
+	return scaleID;
+}
+
+GLuint Shader::getID()
+{
+	return ID;
 }
 
 /// <summary>
 /// DEBUG STUFF HERE
 /// </summary>
-void Shader::GenerateHelloTriangleData()
+void Shader::GenerateTestData()
 {
-	// Coordenadas das vértices
+	// Vertices coordinates
+	// x, y, z, CORES (RGB), Coordenadas da textura
 	GLfloat vertices[] =
 	{
-		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower left corner
-		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower right corner
-		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f // Upper corner
+		-0.5f,  0.5f, 0.0f,		1.0f, 0.0f,  0.0f, // Cima esquerdo
+		0.5f,  0.5f, 0.0f, 		0.0f, 1.0f,  0.0f, // Cima direito
+		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,  1.0f, // Baixo esquerdo
+		0.5f, -0.5f, 0.0f,		1.0f, 1.0f,  1.0f, // Baixo direito
 	};
 
+	// Indices de renderização
 	// Ordem de índices para renderização
 	GLuint indices[] =
 	{
-		0, 2, 1
+		0, 2, 1,
+		1, 2, 3
 	};
 
-	// Gerar o VAO, VBO e EBO com 1 objeto cada
+	// Gerar e bindar o VAO
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-
 	// Bindar o VAO, sinalizando que esse é o atual
 	glBindVertexArray(VAO);
 
-	// Binda o VBO e especifica que é um GL_ARRAY_BUFFER
+	// Gerar VBO
+	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	// Introduce the vertices into the VBO
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// Bind the EBO specifying it's a GL_ELEMENT_ARRAY_BUFFER
+	// Gerar EBO
+	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	// Introduce the indices into the EBO
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	// Configure the Vertex Attribute so that OpenGL knows how to read the VBO
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	// Enable the Vertex Attribute so that OpenGL knows to use it
+	// Linkar VAO com coordenadas
+	// Esse bloco, é o de baixo, basicamente fazem isso:
+	// Bind VBO > Link VBO Attributes > Unbind VBO
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
-	// Bind both the VBO and VAO to 0 so that we don't accidentally modify the VAO and VBO we created
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	// Bind the EBO to 0 so that we don't accidentally modify it
-	// MAKE SURE TO UNBIND IT AFTER UNBINDING THE VAO, as the EBO is linked in the VAO
-	// This does not apply to the VBO because the VBO is already linked to the VAO during glVertexAttribPointer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	// Linkar VAO com cores
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Desbindar tudo
+	glBindVertexArray(0); // VAO
+	glBindBuffer(GL_ARRAY_BUFFER, 0); // VBO
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
+
+	// Pegar ID da escala
+	scaleID = glGetUniformLocation(ID, "scale");
 }
 
-void Shader::RenderHelloTriangle()
+void Shader::RenderTest()
 {
-	// Dizer para o OpenGL qual programa é pra usar
-	glUseProgram(shaderProgram);
-	// Bindar o VAO para o OpenGL usar
-	glBindVertexArray(VAO);
-	// Desenhar primitivos, número de índices, tipo de data, índice do índice?
-	glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }

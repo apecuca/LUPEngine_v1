@@ -9,28 +9,35 @@ class Shader
 {
 public:
 	// Constructor e destructor
+	/*
 	Shader(
 		const char* vertexFile = "Shaders/default.vert",
 		const char* fragmentFile = "Shaders/default.frag"
 	);
+	*/
+	Shader(const char* vertexFile, const char* fragmentFile);
 	~Shader();
 
 	// Método para renderizar
+	void Activate();
+	void BindVAO();
 	void Render();
+
+	GLuint getScaleID();
+	GLuint getID();
 
 private:
 	// Coisas do OpenGL
 	// Vertex Buffer Object,
 	// Vertex Array Object
 	// Buffer de índices
-	GLuint shaderProgram;
-	GLuint VAO, VBO, EBO	;
+	GLuint ID;
+	GLuint scaleID;
+	GLuint VAO, VBO, EBO;
 
 	void CompileErrors(GLuint shader, const char* type);
 
-	void GenerateDefaultCubeData();
-
 	// Debug
-	void GenerateHelloTriangleData();
-	void RenderHelloTriangle();
+	void GenerateTestData();
+	void RenderTest();
 };

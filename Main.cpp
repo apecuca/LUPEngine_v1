@@ -7,7 +7,7 @@
 
 int main()
 {
-	LUPEngine app{};
+	LUPEngine app;
 
 	try {
 		app.run();
