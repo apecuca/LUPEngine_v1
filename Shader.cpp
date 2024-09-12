@@ -14,7 +14,7 @@ std::string get_file_contents(const char* filename) {
 	throw(errno);
 }
 
-Shader::Shader(const char* vertexFile, const char* fragmentFile)
+Shader::Shader(const char* vertexFile, const char* fragmentFile, const char* texFile)
 {
 	// Read vertexFile and fragmentFile and store the strings
 	std::string vertexCode = get_file_contents(vertexFile);
@@ -56,15 +56,23 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	// Gerar Data do Hello Triangle :)
-	GenerateTestData();
+	// Gerar Data de teste, histórico de versões
+	// Hello Triangle
+	// Quadrado colorido
+	// > Textura
+	GenerateTestData(texFile);
 }
 
 Shader::~Shader()
 {
-	// Deletar os buffers criados
+	// Deletar os objetos criados
+	// Buffers
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+	// Textura
+	glDeleteTextures(1, &texture);
+	// Programa (shader)
     glDeleteProgram(ID);
 }
 
@@ -95,44 +103,33 @@ void Shader::CompileErrors(GLuint shader, const char* type)
 	}
 }
 
-void Shader::Activate()
-{
-	glUseProgram(ID);
-}
-
-void Shader::BindVAO()
-{
-	glBindVertexArray(VAO);
-}
-
 void Shader::Render()
 {
-	RenderTest();
-}
-
-GLuint Shader::getScaleID()
-{
-	return scaleID;
-}
-
-GLuint Shader::getID()
-{
-	return ID;
+	// Bindar o programa (shader) atual para ser usado 
+	glUseProgram(ID);
+	// Assigns a value to the uniform; NOTE: Must always be done after activating the Shader Program
+	glUniform1f(scaleID, 0.5f);
+	// Bindar textura para ser usada
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// Bind o VAO para ser o próximo a ser usado
+	glBindVertexArray(VAO);
+	// Renderizar elemento usando os dados bindados
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 /// <summary>
 /// DEBUG STUFF HERE
 /// </summary>
-void Shader::GenerateTestData()
+void Shader::GenerateTestData(const char* texFileName)
 {
 	// Vertices coordinates
 	// x, y, z, CORES (RGB), Coordenadas da textura
 	GLfloat vertices[] =
 	{
-		-0.5f,  0.5f, 0.0f,		1.0f, 0.0f,  0.0f, // Cima esquerdo
-		0.5f,  0.5f, 0.0f, 		0.0f, 1.0f,  0.0f, // Cima direito
-		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,  1.0f, // Baixo esquerdo
-		0.5f, -0.5f, 0.0f,		1.0f, 1.0f,  1.0f, // Baixo direito
+		-0.5f, -0.5f, 0.0f,     1.0f, 1.0f, 1.0f,	0.0f, 0.0f, // Lower left corner
+		-0.5f,  0.5f, 0.0f,     1.0f, 1.0f, 1.0f,	0.0f, 1.0f, // Upper left corner
+		0.5f,  0.5f, 0.0f,		1.0f, 1.0f, 1.0f,	1.0f, 1.0f, // Upper right corner
+		0.5f, -0.5f, 0.0f,		1.0f, 1.0f, 1.0f,	1.0f, 0.0f  // Lower right corner
 	};
 
 	// Indices de renderização
@@ -140,7 +137,7 @@ void Shader::GenerateTestData()
 	GLuint indices[] =
 	{
 		0, 2, 1,
-		1, 2, 3
+		0, 3, 2
 	};
 
 	// Gerar e bindar o VAO
@@ -158,18 +155,23 @@ void Shader::GenerateTestData()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	// Linkar VAO com coordenadas
-	// Esse bloco, é o de baixo, basicamente fazem isso:
 	// Bind VBO > Link VBO Attributes > Unbind VBO
+	// Linkar VBO com coordenadas
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// Linkar VAO com cores
+	// Linkar VBO com cores
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Linkar VBO com coordenadas da textura
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Desbindar tudo
@@ -179,9 +181,50 @@ void Shader::GenerateTestData()
 
 	// Pegar ID da escala
 	scaleID = glGetUniformLocation(ID, "scale");
-}
 
-void Shader::RenderTest()
-{
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	//
+	// TEXTURA DAQUI PRA BAIXO
+	//
+
+	// Gerar textura (pointer para variável da textura
+	glGenTextures(1, &texture);
+	// Binda a textura para ser usada
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// load and generate the texture
+	stbi_set_flip_vertically_on_load(true);
+	int width, height, nrChannels;
+	// Depois tem que mudar isso aqui, tá mt feio
+	std::string filePath = "Resources/Images/" + static_cast<std::string>(texFileName);
+
+	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
+	// Error handling
+	if (data)
+	{
+		// Assigns the image to the OpenGL Texture object
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		// Generates MipMaps
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+
+	// Limpar a memória da imagem
+	stbi_image_free(data);
+
+	// Unbind textura
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Uniform para textura
+	GLuint texUni = glGetUniformLocation(ID, "tex0");
+	glUseProgram(ID);
+	glUniform1i(texUni, 0);
 }

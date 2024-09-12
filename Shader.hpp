@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <stb/stb_image.h>
 
 std::string get_file_contents(const char* filename);
 
@@ -9,22 +10,17 @@ class Shader
 {
 public:
 	// Constructor e destructor
-	/*
+	// Constructor com inicialização padrão
 	Shader(
 		const char* vertexFile = "Shaders/default.vert",
-		const char* fragmentFile = "Shaders/default.frag"
+		const char* fragmentFile = "Shaders/default.frag",
+		const char* texFile = "default_tex.png"
 	);
-	*/
-	Shader(const char* vertexFile, const char* fragmentFile);
+	//Shader(const char* vertexFile, const char* fragmentFile);
 	~Shader();
 
 	// Método para renderizar
-	void Activate();
-	void BindVAO();
 	void Render();
-
-	GLuint getScaleID();
-	GLuint getID();
 
 private:
 	// Coisas do OpenGL
@@ -34,10 +30,10 @@ private:
 	GLuint ID;
 	GLuint scaleID;
 	GLuint VAO, VBO, EBO;
+	GLuint texture;
 
 	void CompileErrors(GLuint shader, const char* type);
 
 	// Debug
-	void GenerateTestData();
-	void RenderTest();
+	void GenerateTestData(const char* texFileName);
 };

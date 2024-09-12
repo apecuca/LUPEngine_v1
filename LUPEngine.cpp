@@ -1,7 +1,6 @@
 #include "LUPEngine.hpp"
 
-LUPEngine::LUPEngine() : 
-	testShader("Shaders/default.vert", "Shaders/default.frag")
+LUPEngine::LUPEngine()
 {
 	// Start
 	std::cout << "Hello world! Starting engine now :3..." << std::endl;
@@ -28,27 +27,19 @@ LUPEngine::~LUPEngine()
 void LUPEngine::run()
 {
 	while (!window.shouldClose()) {
+		// Limpar fundo
+		window.ClearWindow();
+
+		// Draw primitives, number of indices, datatype of indices, index of indices
+		testShader.Render();
+
+		// Inverter os buffers de vídeo
+		window.SwapBuffers();
+
 		// Registrar os inputs
 		glfwPollEvents();
 
 		// Simular aqui em baixo
 		//
-
-		// Limpar fundo
-		window.ClearWindow();
-
-		// Renderizar objetos
-		testShader.Activate();
-		// Assigns a value to the uniform; NOTE: Must always be done after activating the Shader Program
-		glUniform1f(testShader.getScaleID(), 0.5f);
-		// Binds texture so that is appears in rendering
-		//testTexture.Bind();
-		// Bind the VAO so OpenGL knows to use it
-		testShader.BindVAO();
-		// Draw primitives, number of indices, datatype of indices, index of indices
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		// Inverter os buffers de vídeo
-		window.SwapBuffers();
 	}
 }
