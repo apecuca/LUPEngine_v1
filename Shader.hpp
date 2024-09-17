@@ -1,22 +1,32 @@
 #include <glad/glad.h>
 
+// Base libs
 #include <fstream>
 #include <iostream>
+#include <vector>
+
+// GLFW
+#include <GLFW/glfw3.h>
+
+// Load de imagens
 #include <stb/stb_image.h>
+
+// Lib de matemática
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 std::string get_file_contents(const char* filename);
 
 class Shader
 {
 public:
-	// Constructor e destructor
-	// Constructor com inicialização padrão
+	// Constructor com iniialiação padrão
 	Shader(
 		const char* vertexFile = "Shaders/default.vert",
-		const char* fragmentFile = "Shaders/default.frag",
-		const char* texFile = "default_tex.png"
+		const char* fragmentFile = "Shaders/default.frag"
 	);
-	//Shader(const char* vertexFile, const char* fragmentFile);
+	// Destructor
 	~Shader();
 
 	// Método para renderizar
@@ -28,12 +38,22 @@ private:
 	// Vertex Array Object
 	// Buffer de índices
 	GLuint ID;
-	GLuint scaleID;
+	GLuint transformID;
 	GLuint VAO, VBO, EBO;
-	GLuint texture;
+	GLuint tex1, tex2;
+	
+	// Mesh data
+	int vertexCount;
 
+	// Nomes dos arquivos das texturas
+	const char* texFiles[3] {"default_tex.png", "brick.png", "pop_cat.png"};
+
+	void ConfigShader(const char* vertexFile, const char* fragmentFile);
+	void GenerateShader();
+	// Pointer da variável que vai estar a textura
+	void GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex);
+
+	// Compila e indica erros de compilação
 	void CompileErrors(GLuint shader, const char* type);
 
-	// Debug
-	void GenerateTestData(const char* texFileName);
 };

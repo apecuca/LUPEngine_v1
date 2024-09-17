@@ -14,7 +14,109 @@ std::string get_file_contents(const char* filename) {
 	throw(errno);
 }
 
-Shader::Shader(const char* vertexFile, const char* fragmentFile, const char* texFile)
+Shader::Shader(const char* vertexFile, const char* fragmentFile)
+{
+	// Configurar as variáveis do Shader
+	// Vulgo criar VAO, VBO e EBO
+	ConfigShader(vertexFile, fragmentFile);
+
+	// Gerar Shader, histórico de versões
+	// > Hello Triangle
+	// > Quadrado colorido
+	// > Textura
+	// > Múltiplas (2) texturas
+	GenerateShader();
+
+	// Mathmatics oh my god
+	// trans = transform
+	glm::mat4 trans = glm::mat4(1.0f);
+	//
+	// !!! IMPORTANTE !!!
+	// SEMPRE fazer o translate antes da rotação
+	// para evitar problemas de perspectiva.
+	// Se rotacioar ANTES de mudar a posição,
+	// o translate moverá usando as coordenadas
+	// rotacionadas como base.
+	// 
+	// Posição absoluta multiplicado por uma força 
+	trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f) * 1.0f);
+	// Rotação no eixo Z
+	trans = glm::rotate(trans, glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0));
+	// Escala
+	trans = glm::scale(trans, glm::vec3(1.0f) * 1.0f);
+
+	// Aplicar o transform
+	// Bindar o programa atual, todos os glUniform aplica no programa atual
+	glUseProgram(ID);
+	glUniformMatrix4fv(transformID, 1, GL_FALSE, glm::value_ptr(trans));
+}
+
+Shader::~Shader()
+{
+	// Deletar os objetos criados
+	// Buffers
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+	// Textura
+	glDeleteTextures(1, &tex1);
+	glDeleteTextures(1, &tex2);
+	// Programa (shader)
+    glDeleteProgram(ID);
+}
+
+// Checks if the different Shaders have compiled properly
+void Shader::CompileErrors(GLuint shader, const char* type)
+{
+	// Stores status of compilation
+	GLint hasCompiled;
+	// Character array to store error message in
+	char infoLog[1024];
+	if (type != "PROGRAM")
+	{
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
+		if (hasCompiled == GL_FALSE)
+		{
+			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+			std::cout << "SHADER_COMPILATION_ERROR for:" << type << "\n" << infoLog << std::endl;
+		}
+	}
+	else
+	{
+		glGetProgramiv(shader, GL_LINK_STATUS, &hasCompiled);
+		if (hasCompiled == GL_FALSE)
+		{
+			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+			std::cout << "SHADER_LINKING_ERROR for:" << type << "\n" << infoLog << std::endl;
+		}
+	}
+}
+
+void Shader::Render()
+{
+	// Bindar o programa (shader) atual para ser usado 
+	glUseProgram(ID);
+	
+	// Transform
+	glm::mat4 trans = glm::mat4(1.0f);
+	// Rotação em todos os eixos, o ângulo sendo (força * tempo do frame em segundos)
+	// 60 FPS = 0.016s
+	trans = glm::rotate(trans, 1.0f * static_cast<float>(glfwGetTime()), glm::vec3(1.0));
+	// Aplicar o transform
+	glUniformMatrix4fv(transformID, 1, GL_FALSE, glm::value_ptr(trans));
+
+	// Bindar textura para ser usada
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, tex1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, tex2);
+	// Bind o VAO para ser o próximo a ser usado
+	glBindVertexArray(VAO);
+	// Renderizar elemento usando os dados bindados
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
+void Shader::ConfigShader(const char* vertexFile, const char* fragmentFile)
 {
 	// Read vertexFile and fragmentFile and store the strings
 	std::string vertexCode = get_file_contents(vertexFile);
@@ -55,72 +157,9 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile, const char* tex
 	// Delete the now useless Vertex and Fragment Shader objects
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-
-	// Gerar Data de teste, histórico de versões
-	// Hello Triangle
-	// Quadrado colorido
-	// > Textura
-	GenerateTestData(texFile);
 }
 
-Shader::~Shader()
-{
-	// Deletar os objetos criados
-	// Buffers
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
-	// Textura
-	glDeleteTextures(1, &texture);
-	// Programa (shader)
-    glDeleteProgram(ID);
-}
-
-// Checks if the different Shaders have compiled properly
-void Shader::CompileErrors(GLuint shader, const char* type)
-{
-	// Stores status of compilation
-	GLint hasCompiled;
-	// Character array to store error message in
-	char infoLog[1024];
-	if (type != "PROGRAM")
-	{
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
-		if (hasCompiled == GL_FALSE)
-		{
-			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-			std::cout << "SHADER_COMPILATION_ERROR for:" << type << "\n" << infoLog << std::endl;
-		}
-	}
-	else
-	{
-		glGetProgramiv(shader, GL_LINK_STATUS, &hasCompiled);
-		if (hasCompiled == GL_FALSE)
-		{
-			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-			std::cout << "SHADER_LINKING_ERROR for:" << type << "\n" << infoLog << std::endl;
-		}
-	}
-}
-
-void Shader::Render()
-{
-	// Bindar o programa (shader) atual para ser usado 
-	glUseProgram(ID);
-	// Assigns a value to the uniform; NOTE: Must always be done after activating the Shader Program
-	glUniform1f(scaleID, 0.5f);
-	// Bindar textura para ser usada
-	glBindTexture(GL_TEXTURE_2D, texture);
-	// Bind o VAO para ser o próximo a ser usado
-	glBindVertexArray(VAO);
-	// Renderizar elemento usando os dados bindados
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-}
-
-/// <summary>
-/// DEBUG STUFF HERE
-/// </summary>
-void Shader::GenerateTestData(const char* texFileName)
+void Shader::GenerateShader()
 {
 	// Vertices coordinates
 	// x, y, z, CORES (RGB), Coordenadas da textura
@@ -139,6 +178,9 @@ void Shader::GenerateTestData(const char* texFileName)
 		0, 2, 1,
 		0, 3, 2
 	};
+
+	// informações da mesh
+	vertexCount = static_cast<int>((sizeof(vertices) / sizeof(GLfloat)) / 2.66f);
 
 	// Gerar e bindar o VAO
 	glGenVertexArrays(1, &VAO);
@@ -180,17 +222,28 @@ void Shader::GenerateTestData(const char* texFileName)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
 
 	// Pegar ID da escala
-	scaleID = glGetUniformLocation(ID, "scale");
+	transformID = glGetUniformLocation(ID, "transform");
 
 	//
 	// TEXTURA DAQUI PRA BAIXO
 	//
 
-	// Gerar textura (pointer para variável da textura
-	glGenTextures(1, &texture);
+	GenerateTexture(&tex1, 1, GL_TEXTURE0);
+	GenerateTexture(&tex2, 2, GL_TEXTURE1);
+
+	// Uniform para textura
+	glUseProgram(ID);
+	glUniform1i(glGetUniformLocation(ID, "tex0"), 0);
+	glUniform1i(glGetUniformLocation(ID, "tex1"), 1);
+}
+
+void Shader::GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex)
+{
+	// Gerar textura 1 (pointer para variável da textura
+	glGenTextures(1, texVar);
 	// Binda a textura para ser usada
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glActiveTexture(texIndex);
+	glBindTexture(GL_TEXTURE_2D, *texVar);
 	// set the texture wrapping/filtering options (on the currently bound texture object)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -201,7 +254,7 @@ void Shader::GenerateTestData(const char* texFileName)
 	stbi_set_flip_vertically_on_load(true);
 	int width, height, nrChannels;
 	// Depois tem que mudar isso aqui, tá mt feio
-	std::string filePath = "Resources/Images/" + static_cast<std::string>(texFileName);
+	std::string filePath = "Resources/Images/" + static_cast<std::string>(texFiles[fileIndex]);
 
 	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
 	// Error handling
@@ -222,9 +275,4 @@ void Shader::GenerateTestData(const char* texFileName)
 
 	// Unbind textura
 	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Uniform para textura
-	GLuint texUni = glGetUniformLocation(ID, "tex0");
-	glUseProgram(ID);
-	glUniform1i(texUni, 0);
 }

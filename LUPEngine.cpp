@@ -5,7 +5,7 @@ LUPEngine::LUPEngine()
 	// Start
 	std::cout << "Hello world! Starting engine now :3..." << std::endl;
 
-	// Inicialização das variáveis
+	// Inicialização
 
 	// Finish startup
 	std::cout << "Engine succesfully started!" << std::endl;
