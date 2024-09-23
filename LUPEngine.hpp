@@ -2,6 +2,7 @@
 
 #include "Window.hpp"
 #include "Shader.hpp"
+#include "Time.hpp"
 
 class LUPEngine
 {
@@ -22,4 +23,6 @@ class LUPEngine
 		Window window{ WIDTH, HEIGHT, "LUPEngine example" };
 		Shader testShader;
 		//Texture testTexture;
+
+		//Time timeObj;
 };

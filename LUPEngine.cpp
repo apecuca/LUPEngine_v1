@@ -6,6 +6,7 @@ LUPEngine::LUPEngine()
 	std::cout << "Hello world! Starting engine now :3..." << std::endl;
 
 	// Inicialização
+	Time::UpdateTimeVars();
 
 	// Finish startup
 	std::cout << "Engine succesfully started!" << std::endl;
@@ -40,6 +41,7 @@ void LUPEngine::run()
 		glfwPollEvents();
 
 		// Simular aqui em baixo
-		//
+		// Atualizar as variáveis de tempo
+		Time::UpdateTimeVars();
 	}
 }

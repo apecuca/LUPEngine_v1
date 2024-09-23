@@ -16,6 +16,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+// Classes da LUPEngine
+#include "Time.hpp"
+
 std::string get_file_contents(const char* filename);
 
 class Shader
@@ -38,10 +41,13 @@ private:
 	// Vertex Array Object
 	// Buffer de índices
 	GLuint ID;
-	GLuint transformID;
 	GLuint VAO, VBO, EBO;
 	GLuint tex1, tex2;
 	
+	// Transform
+	GLuint transformID;
+	glm::mat4 transformMat;
+
 	// Mesh data
 	int vertexCount;
 

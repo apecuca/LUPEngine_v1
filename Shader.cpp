@@ -27,9 +27,9 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	// > Múltiplas (2) texturas
 	GenerateShader();
 
-	// Mathmatics oh my god
-	// trans = transform
-	glm::mat4 trans = glm::mat4(1.0f);
+	// Transform
+	transformMat = glm::mat4(1.0f);
+
 	//
 	// !!! IMPORTANTE !!!
 	// SEMPRE fazer o translate antes da rotação
@@ -38,17 +38,15 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	// o translate moverá usando as coordenadas
 	// rotacionadas como base.
 	// 
-	// Posição absoluta multiplicado por uma força 
-	trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f) * 1.0f);
-	// Rotação no eixo Z
-	trans = glm::rotate(trans, glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0));
-	// Escala
-	trans = glm::scale(trans, glm::vec3(1.0f) * 1.0f);
+	
+	// Posição, rotação e escala inicial
+	transformMat = glm::translate(transformMat, glm::vec3(0.5f, -0.5f, 0.0f) * 1.0f);
+	transformMat = glm::rotate(transformMat, glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0));
+	transformMat = glm::scale(transformMat, glm::vec3(1.0f) * 1.0f);
 
-	// Aplicar o transform
-	// Bindar o programa atual, todos os glUniform aplica no programa atual
+	// Aplicar transforms
 	glUseProgram(ID);
-	glUniformMatrix4fv(transformID, 1, GL_FALSE, glm::value_ptr(trans));
+	glUniformMatrix4fv(transformID, 1, GL_FALSE, glm::value_ptr(transformMat));
 }
 
 Shader::~Shader()
@@ -98,12 +96,9 @@ void Shader::Render()
 	glUseProgram(ID);
 	
 	// Transform
-	glm::mat4 trans = glm::mat4(1.0f);
-	// Rotação em todos os eixos, o ângulo sendo (força * tempo do frame em segundos)
-	// 60 FPS = 0.016s
-	trans = glm::rotate(trans, 1.0f * static_cast<float>(glfwGetTime()), glm::vec3(1.0));
-	// Aplicar o transform
-	glUniformMatrix4fv(transformID, 1, GL_FALSE, glm::value_ptr(trans));
+	transformMat = glm::rotate(transformMat,
+		glm::radians(45.0f) * Time::scaledDeltaTime, glm::vec3(0.0, 0.0, 1.0));
+	glUniformMatrix4fv(transformID, 1, GL_FALSE, glm::value_ptr(transformMat));
 
 	// Bindar textura para ser usada
 	glActiveTexture(GL_TEXTURE0);
