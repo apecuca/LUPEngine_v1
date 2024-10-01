@@ -1,4 +1,5 @@
 #include "Window.hpp"
+#include "Debug.hpp"
 
 // constructor
 Window::Window(int w, int h, std::string name) : width{ w }, height{ h }, windowName{ name }
@@ -41,7 +42,7 @@ void Window::ClearWindow()
 	// Define a cor de fundo
 	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 	// Desenha a cor de fundo por cima do buffer
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::SwapBuffers()

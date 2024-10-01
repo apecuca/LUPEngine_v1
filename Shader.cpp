@@ -28,7 +28,9 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	GenerateShader();
 
 	// Transform
-	transformMat = glm::mat4(1.0f);
+	viewMat = glm::mat4(1.0f);
+	projecMat = glm::mat4(1.0f);
+	modelMat = glm::mat4(1.0f);
 
 	//
 	// !!! IMPORTANTE !!!
@@ -38,15 +40,17 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	// o translate moverá usando as coordenadas
 	// rotacionadas como base.
 	// 
-	
-	// Posição, rotação e escala inicial
-	transformMat = glm::translate(transformMat, glm::vec3(0.5f, -0.5f, 0.0f) * 1.0f);
-	transformMat = glm::rotate(transformMat, glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0));
-	transformMat = glm::scale(transformMat, glm::vec3(1.0f) * 1.0f);
+
+	projecMat = glm::perspective(glm::radians(45.0f), 800.0f / 800.0f, 0.1f, 100.0f);
+	modelMat = glm::translate(modelMat, glm::vec3(0.0f, 0.0f, -3.0f));
 
 	// Aplicar transforms
 	glUseProgram(ID);
-	glUniformMatrix4fv(transformID, 1, GL_FALSE, glm::value_ptr(transformMat));
+	setMat4("model", modelMat);
+	setMat4("view", viewMat);
+	setMat4("projection", projecMat);
+
+	//glUniformMatrix4fv(transformID, 1, GL_FALSE, glm::value_ptr(viewMat));
 }
 
 Shader::~Shader()
@@ -57,8 +61,7 @@ Shader::~Shader()
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
 	// Textura
-	glDeleteTextures(1, &tex1);
-	glDeleteTextures(1, &tex2);
+	glDeleteTextures(1, &texture);
 	// Programa (shader)
     glDeleteProgram(ID);
 }
@@ -92,23 +95,25 @@ void Shader::CompileErrors(GLuint shader, const char* type)
 
 void Shader::Render()
 {
+	// Bindar textura para ser usada
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
 	// Bindar o programa (shader) atual para ser usado 
 	glUseProgram(ID);
 	
 	// Transform
-	transformMat = glm::rotate(transformMat,
-		glm::radians(45.0f) * Time::scaledDeltaTime, glm::vec3(0.0, 0.0, 1.0));
-	glUniformMatrix4fv(transformID, 1, GL_FALSE, glm::value_ptr(transformMat));
+	modelMat = glm::rotate(modelMat, glm::radians(45.0f * Time::deltaTime), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	// Bindar textura para ser usada
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tex1);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, tex2);
+	// Aplicar transform
+	setMat4("projection", projecMat);
+	setMat4("view", viewMat);
+	setMat4("model", modelMat);
+
 	// Bind o VAO para ser o próximo a ser usado
 	glBindVertexArray(VAO);
 	// Renderizar elemento usando os dados bindados
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
 void Shader::ConfigShader(const char* vertexFile, const char* fragmentFile)
@@ -160,10 +165,15 @@ void Shader::GenerateShader()
 	// x, y, z, CORES (RGB), Coordenadas da textura
 	GLfloat vertices[] =
 	{
-		-0.5f, -0.5f, 0.0f,     1.0f, 1.0f, 1.0f,	0.0f, 0.0f, // Lower left corner
-		-0.5f,  0.5f, 0.0f,     1.0f, 1.0f, 1.0f,	0.0f, 1.0f, // Upper left corner
-		0.5f,  0.5f, 0.0f,		1.0f, 1.0f, 1.0f,	1.0f, 1.0f, // Upper right corner
-		0.5f, -0.5f, 0.0f,		1.0f, 1.0f, 1.0f,	1.0f, 0.0f  // Lower right corner
+		-0.5f, -0.5f, 0.5f,     1.0f, 1.0f, 1.0f,	0.0f, 0.0f, // Lower left corner
+		-0.5f,  0.5f, 0.5f,     1.0f, 1.0f, 1.0f,	0.0f, 1.0f, // Upper left corner
+		0.5f,  0.5f, 0.5f,		1.0f, 1.0f, 1.0f,	1.0f, 1.0f, // Upper right corner
+		0.5f, -0.5f, 0.5f,		1.0f, 1.0f, 1.0f,	1.0f, 0.0f,  // Lower right corner
+
+		-0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,	0.0f, 0.0f, // Lower left corner
+		-0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,	0.0f, 1.0f, // Upper left corner
+		0.5f,  0.5f, -0.5f,		1.0f, 1.0f, 1.0f,	1.0f, 1.0f, // Upper right corner
+		0.5f, -0.5f, -0.5f,		1.0f, 1.0f, 1.0f,	1.0f, 0.0f  // Lower right corner
 	};
 
 	// Indices de renderização
@@ -171,7 +181,22 @@ void Shader::GenerateShader()
 	GLuint indices[] =
 	{
 		0, 2, 1,
-		0, 3, 2
+		0, 3, 2,
+
+		3, 2, 6,
+		3, 7, 6,
+
+		7, 5, 6,
+		7, 4, 5,
+
+		4, 1, 5,
+		4, 0, 1,
+
+		1, 6, 5,
+		1, 2, 6,
+
+		4, 3, 0,
+		4, 7, 3
 	};
 
 	// informações da mesh
@@ -216,20 +241,15 @@ void Shader::GenerateShader()
 	glBindBuffer(GL_ARRAY_BUFFER, 0); // VBO
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
 
-	// Pegar ID da escala
-	transformID = glGetUniformLocation(ID, "transform");
-
 	//
 	// TEXTURA DAQUI PRA BAIXO
 	//
 
-	GenerateTexture(&tex1, 1, GL_TEXTURE0);
-	GenerateTexture(&tex2, 2, GL_TEXTURE1);
+	GenerateTexture(&texture, 1, GL_TEXTURE0);
 
 	// Uniform para textura
 	glUseProgram(ID);
 	glUniform1i(glGetUniformLocation(ID, "tex0"), 0);
-	glUniform1i(glGetUniformLocation(ID, "tex1"), 1);
 }
 
 void Shader::GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex)
@@ -239,11 +259,12 @@ void Shader::GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex)
 	// Binda a textura para ser usada
 	glActiveTexture(texIndex);
 	glBindTexture(GL_TEXTURE_2D, *texVar);
-	// set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// load and generate the texture
 	stbi_set_flip_vertically_on_load(true);
@@ -270,4 +291,9 @@ void Shader::GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex)
 
 	// Unbind textura
 	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
+{
+	glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }

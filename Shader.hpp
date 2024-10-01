@@ -42,11 +42,12 @@ private:
 	// Buffer de índices
 	GLuint ID;
 	GLuint VAO, VBO, EBO;
-	GLuint tex1, tex2;
+	GLuint texture;
 	
 	// Transform
-	GLuint transformID;
-	glm::mat4 transformMat;
+	glm::mat4 viewMat;
+	glm::mat4 projecMat;
+	glm::mat4 modelMat;
 
 	// Mesh data
 	int vertexCount;
@@ -58,6 +59,9 @@ private:
 	void GenerateShader();
 	// Pointer da variável que vai estar a textura
 	void GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex);
+
+	// Gerenciamento
+	void setMat4(const std::string& name, const glm::mat4& mat) const;
 
 	// Compila e indica erros de compilação
 	void CompileErrors(GLuint shader, const char* type);
