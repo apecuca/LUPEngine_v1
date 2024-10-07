@@ -1,5 +1,8 @@
 #include "LUPEngine.hpp"
 
+#include "Time.hpp"
+#include "Input.hpp"
+
 // Inicializaçao das variáveis estáticas
 std::vector<GameObject> LUPEngine::instantiatedObjs;
 
@@ -7,9 +10,11 @@ LUPEngine::LUPEngine()
 {
 	// Inicialização
 	glEnable(GL_DEPTH_TEST);
+	Input::InitInput(window.getWindowPtr());
 
 	// Updates pré-frame
 	Time::UpdateTimeVars();
+	Input::UpdateInput();
 
 	// Spawn de objetos
 	LUPEngine::InstantiateObject();
@@ -42,12 +47,15 @@ void LUPEngine::run()
 		// Inverter os buffers de vídeo
 		window.SwapBuffers();
 
-		// Registrar os inputs
-		glfwPollEvents();
-
-		// Simular aqui em baixo
-		// Atualizar as variáveis de tempo
+		// Atualizar variáveis
 		Time::UpdateTimeVars();
+		Input::UpdateInput();
+
+		// Simular objetos
+		for (int i = 0; i < instantiatedObjs.size(); i++)
+		{
+			instantiatedObjs.at(i).Update();
+		}
 	}
 }
 

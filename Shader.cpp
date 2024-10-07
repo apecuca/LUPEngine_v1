@@ -1,5 +1,8 @@
 #include "Shader.hpp"
 
+// Classes da LUPEngine
+#include "Time.hpp"
+
 std::string get_file_contents(const char* filename) {
 	std::ifstream in(filename, std::ios::binary);
 	if (in) {
@@ -93,7 +96,7 @@ void Shader::CompileErrors(GLuint shader, const char* type)
 	}
 }
 
-void Shader::Render()
+void Shader::Render(const glm::vec3 camPos, const glm::vec3 camFront, const glm::vec3 camUp)
 {
 	// Bindar textura para ser usada
 	glActiveTexture(GL_TEXTURE0);
@@ -102,12 +105,12 @@ void Shader::Render()
 	// Bindar o programa (shader) atual para ser usado 
 	glUseProgram(ID);
 	
-	// Transform
-	modelMat = glm::rotate(modelMat, glm::radians(45.0f * Time::deltaTime), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	// Aplicar transform
-	setMat4("projection", projecMat);
+	// View
+	viewMat = glm::lookAt(camPos, camPos + camFront, camUp);
 	setMat4("view", viewMat);
+
+	// Model
+	modelMat = glm::rotate(modelMat, glm::radians(45.0f * Time::deltaTime), glm::vec3(0.0f, 1.0f, 0.0f));
 	setMat4("model", modelMat);
 
 	// Bind o VAO para ser o próximo a ser usado

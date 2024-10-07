@@ -16,9 +16,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// Classes da LUPEngine
-#include "Time.hpp"
-
 std::string get_file_contents(const char* filename);
 
 class Shader
@@ -33,7 +30,7 @@ public:
 	~Shader();
 
 	// Método para renderizar
-	void Render();
+	void Render(const glm::vec3 camPos, const glm::vec3 camFront, const glm::vec3 camUp);
 
 private:
 	// Coisas do OpenGL

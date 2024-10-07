@@ -1,6 +1,8 @@
 #include "Window.hpp"
 #include "Debug.hpp"
 
+#include "Input.hpp"
+
 // constructor
 Window::Window(int w, int h, std::string name) : width{ w }, height{ h }, windowName{ name }
 {

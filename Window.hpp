@@ -13,6 +13,7 @@ class Window {
 		Window& operator = (const Window&) = delete;
 
 		bool shouldClose() { return glfwWindowShouldClose(windowPtr); }
+		GLFWwindow* getWindowPtr() { return windowPtr; }
 
 		void ClearWindow();
 		void SwapBuffers();

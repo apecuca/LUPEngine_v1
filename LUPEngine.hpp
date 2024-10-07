@@ -5,7 +5,6 @@
 
 // LUPE classes
 #include "Window.hpp"
-#include "Time.hpp"
 #include "GameObject.hpp"
 
 class LUPEngine
