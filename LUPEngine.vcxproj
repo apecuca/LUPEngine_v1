@@ -23,6 +23,7 @@
     <None Include="Shaders\default.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -36,6 +37,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Debug.hpp" />
     <ClInclude Include="GameObject.hpp" />
     <ClInclude Include="Input.hpp" />

@@ -19,3 +19,8 @@ void Debug::Log(const float text)
 {
 	std::cout << text << "\n";
 }
+
+void Debug::Log(const double text)
+{
+	std::cout << text << "\n";
+}

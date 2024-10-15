@@ -2,6 +2,8 @@
 
 // Classes da LUPEngine
 #include "Time.hpp"
+#include "Camera.hpp"
+#include "LUPEngine.hpp"
 
 std::string get_file_contents(const char* filename) {
 	std::ifstream in(filename, std::ios::binary);
@@ -45,7 +47,7 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	// 
 
 	projecMat = glm::perspective(glm::radians(45.0f), 800.0f / 800.0f, 0.1f, 100.0f);
-	modelMat = glm::translate(modelMat, glm::vec3(0.0f, 0.0f, -3.0f));
+	modelMat = glm::translate(modelMat, glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// Aplicar transforms
 	glUseProgram(ID);
@@ -96,7 +98,7 @@ void Shader::CompileErrors(GLuint shader, const char* type)
 	}
 }
 
-void Shader::Render(const glm::vec3 camPos, const glm::vec3 camFront, const glm::vec3 camUp)
+void Shader::Render()
 {
 	// Bindar textura para ser usada
 	glActiveTexture(GL_TEXTURE0);
@@ -106,6 +108,16 @@ void Shader::Render(const glm::vec3 camPos, const glm::vec3 camFront, const glm:
 	glUseProgram(ID);
 	
 	// View
+	// viewMat = glm::lookAt(pos, pos + front, up);
+	
+	glm::vec3 camPos = Camera::GetInstance().position;
+	glm::vec3 camFront = Camera::GetInstance().front;
+	glm::vec3 camUp = Camera::GetInstance().up;
+
+	projecMat = glm::perspective(glm::radians(Camera::GetInstance().fov),
+		800.0f / 800.0f, 0.1f, 100.0f);
+	setMat4("projection", projecMat);
+
 	viewMat = glm::lookAt(camPos, camPos + camFront, camUp);
 	setMat4("view", viewMat);
 

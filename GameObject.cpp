@@ -7,31 +7,72 @@
 
 GameObject::GameObject()
 {
-	//
+	SetRotation(glm::vec3(0.f));
 }
 
 GameObject::~GameObject()
 {
-	//
+	delete shader;
+}
+
+void GameObject::InitShader()
+{
+	shader = new Shader();
 }
 
 void GameObject::Update()
 {
-	float moveSpeed = 3.0f * Time::deltaTime;
-
-	position += right * (moveSpeed * Input::horizontal);
-	position += front * (moveSpeed * Input::vertical);
-
-	if (Input::GetKey(GLFW_KEY_SPACE))
-		position += up * moveSpeed;
-	if (Input::GetKey(GLFW_KEY_LEFT_CONTROL))
-		position -= up * moveSpeed;
-
-	if (Input::GetKey(GLFW_KEY_R))
-		position = glm::vec3(0.0f);
+	//
 }
 
 void GameObject::Render()
 {
-	shader.Render(position, front, up);
+	if (shader == nullptr) return;
+
+	shader->Render();
+}
+
+void GameObject::SetRotation(glm::vec3 angle)
+{
+	rotation = angle;
+
+	UpdateRotationAxis();
+}
+
+void GameObject::SetRotation(glm::vec3 angle, bool clamp)
+{
+	rotation = angle;
+
+	if (clamp)
+		rotation.y = glm::clamp(rotation.y, -89.0f, 89.0f);
+
+	UpdateRotationAxis();
+}
+
+void GameObject::Rotate(glm::vec3 angle)
+{
+	rotation += angle;
+
+	UpdateRotationAxis();
+}
+
+void GameObject::UpdateRotationAxis()
+{
+	front = glm::normalize(glm::vec3(
+		cos(glm::radians(rotation.y)) * sin(glm::radians(rotation.x)),
+		-sin(glm::radians(rotation.y)),
+		cos(glm::radians(rotation.y)) * cos(glm::radians(rotation.x))
+	));
+
+	right = glm::normalize(glm::vec3(
+		-cos(glm::radians(rotation.x)),
+		0.f,
+		sin(glm::radians(rotation.x))
+	));
+
+	up = glm::normalize(glm::vec3(
+		sin(glm::radians(rotation.y)) * sin(glm::radians(rotation.x)),
+		cos(glm::radians(rotation.y)),
+		sin(glm::radians(rotation.y)) * cos(glm::radians(rotation.x))
+	));
 }

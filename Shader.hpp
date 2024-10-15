@@ -1,3 +1,5 @@
+#pragma once
+
 #include <glad/glad.h>
 
 // Base libs
@@ -30,7 +32,7 @@ public:
 	~Shader();
 
 	// Método para renderizar
-	void Render(const glm::vec3 camPos, const glm::vec3 camFront, const glm::vec3 camUp);
+	void Render();
 
 private:
 	// Coisas do OpenGL

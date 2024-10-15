@@ -4,7 +4,7 @@
 #include "Input.hpp"
 
 // Inicializaçao das variáveis estáticas
-std::vector<GameObject> LUPEngine::instantiatedObjs;
+//std::vector<GameObject> LUPEngine::instantiatedObjs;
 
 LUPEngine::LUPEngine()
 {
@@ -14,10 +14,15 @@ LUPEngine::LUPEngine()
 
 	// Updates pré-frame
 	Time::UpdateTimeVars();
-	Input::UpdateInput();
 
-	// Spawn de objetos
+	// Instanciar objetos e os iniciar
 	LUPEngine::InstantiateObject();
+	for (int i = 0; i < instantiatedObjs.size(); i++)
+		instantiatedObjs.at(i).InitShader();
+
+	// Câmera
+	//instance->position.z -= 3.0f;
+	camObj.position.z -= 3.f;
 
 	// Finish startup
 	std::cout << "Engine succesfully started!" << std::endl;
@@ -48,14 +53,16 @@ void LUPEngine::run()
 		window.SwapBuffers();
 
 		// Atualizar variáveis
-		Time::UpdateTimeVars();
 		Input::UpdateInput();
+		Time::UpdateTimeVars();
 
 		// Simular objetos
 		for (int i = 0; i < instantiatedObjs.size(); i++)
 		{
 			instantiatedObjs.at(i).Update();
 		}
+
+		camObj.Update();
 	}
 }
 
