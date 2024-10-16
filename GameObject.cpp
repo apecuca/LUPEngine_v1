@@ -1,28 +1,21 @@
 #include "GameObject.hpp"
 
+#include "Debug.hpp"
 #include "Time.hpp"
 #include "Input.hpp"
 
 #include "GLFW/glfw3.h"
 
-GameObject::GameObject()
+void GameObject::InitShader(glm::vec3 color)
 {
-	SetRotation(glm::vec3(0.f));
-}
-
-GameObject::~GameObject()
-{
-	delete shader;
-}
-
-void GameObject::InitShader()
-{
-	shader = new Shader();
+	//shader = new Shader(color);
+	shader = std::make_unique<Shader>(*this, color);
+	SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
 void GameObject::Update()
 {
-	//
+	Rotate(glm::vec3(0.0f, 45.0f, 0.0f) * Time::deltaTime);
 }
 
 void GameObject::Render()
@@ -32,11 +25,16 @@ void GameObject::Render()
 	shader->Render();
 }
 
+void GameObject::Rotate(glm::vec3 angle)
+{
+	SetRotation(rotation + angle);
+}
+
 void GameObject::SetRotation(glm::vec3 angle)
 {
 	rotation = angle;
 
-	UpdateRotationAxis();
+	UpdateRotation(angle);
 }
 
 void GameObject::SetRotation(glm::vec3 angle, bool clamp)
@@ -46,18 +44,20 @@ void GameObject::SetRotation(glm::vec3 angle, bool clamp)
 	if (clamp)
 		rotation.y = glm::clamp(rotation.y, -89.0f, 89.0f);
 
-	UpdateRotationAxis();
+	UpdateRotation(angle);
 }
 
-void GameObject::Rotate(glm::vec3 angle)
+void GameObject::SetPosition(glm::vec3 pos)
 {
-	rotation += angle;
-
-	UpdateRotationAxis();
+	position = pos;
 }
 
-void GameObject::UpdateRotationAxis()
+void GameObject::UpdateRotation(glm::vec3 lastOperation)
 {
+	// Gerenciamento
+	lastRotation = lastOperation;
+
+	// Axis de rotação
 	front = glm::normalize(glm::vec3(
 		cos(glm::radians(rotation.y)) * sin(glm::radians(rotation.x)),
 		-sin(glm::radians(rotation.y)),
@@ -75,4 +75,14 @@ void GameObject::UpdateRotationAxis()
 		cos(glm::radians(rotation.y)),
 		sin(glm::radians(rotation.y)) * cos(glm::radians(rotation.x))
 	));
+
+	// Shader
+	/*
+	if (shader == nullptr) return;
+	shader->Rotate(glm::vec3(
+		lastOperation.y,
+		lastOperation.x,
+		lastOperation.z
+	));
+	*/
 }

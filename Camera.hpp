@@ -18,6 +18,9 @@ public:
 
     float fov = 60;
 
+    // Retorna a view matrix
+    glm::mat4 GetViewMatrix();
+
     // Membro herdado
     void Update();
 

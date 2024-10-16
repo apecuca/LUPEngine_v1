@@ -72,6 +72,8 @@ void Input::callback_mouseInput(GLFWwindow* window, int button, int action, int 
 
 void Input::callback_keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	//Debug::Log(key);
+
 	// Adicionar e remover dos respectivos buffers
 	if (action == GLFW_PRESS) keysPressedThisFrame.emplace_back(key);
 	if (action == GLFW_RELEASE) keysReleasedThisFrame.emplace_back(key);

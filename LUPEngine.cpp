@@ -1,7 +1,9 @@
 #include "LUPEngine.hpp"
 
+#include "Debug.hpp"
 #include "Time.hpp"
 #include "Input.hpp"
+#include "glm/glm.hpp"
 
 // Inicializaçao das variáveis estáticas
 //std::vector<GameObject> LUPEngine::instantiatedObjs;
@@ -15,17 +17,13 @@ LUPEngine::LUPEngine()
 	// Updates pré-frame
 	Time::UpdateTimeVars();
 
-	// Instanciar objetos e os iniciar
-	LUPEngine::InstantiateObject();
-	for (int i = 0; i < instantiatedObjs.size(); i++)
-		instantiatedObjs.at(i).InitShader();
-
-	// Câmera
-	//instance->position.z -= 3.0f;
-	camObj.position.z -= 3.f;
+	// Instanciar objetos
+	GameObject& newObj = InstantiateObject();
+	newObj.InitShader(glm::vec3(1.0f));
+	newObj.SetPosition(glm::vec3(0.0f));
 
 	// Finish startup
-	std::cout << "Engine succesfully started!" << std::endl;
+	Debug::Log("Engine succesfully started!");
 }
 
 LUPEngine::~LUPEngine()
@@ -43,7 +41,7 @@ void LUPEngine::run()
 		// Limpar fundo
 		window.ClearWindow();
 
-		// Chamar o Render do gameobject de teste
+		// Renderizar gameobjs instanciados
 		for (int i = 0; i < instantiatedObjs.size(); i++)
 		{
 			instantiatedObjs.at(i).Render();
@@ -66,10 +64,14 @@ void LUPEngine::run()
 	}
 }
 
-
 // Gerenciamento
 GameObject& LUPEngine::InstantiateObject()
 {
+	if (instantiatedObjs.size() - 1 >= instantiatedObjs.capacity())
+	{
+		instantiatedObjs.reserve(30);
+	}
+
 	instantiatedObjs.emplace_back();
 
 	return instantiatedObjs.back();

@@ -1,7 +1,15 @@
 #include "Shader.hpp"
 
+// Standard
+#include <fstream>
+
+// Load de imagens
+#include <stb/stb_image.h>
+
+// Matemática
+#include <glm/gtc/matrix_transform.hpp>
+
 // Classes da LUPEngine
-#include "Time.hpp"
 #include "Camera.hpp"
 #include "LUPEngine.hpp"
 
@@ -19,7 +27,8 @@ std::string get_file_contents(const char* filename) {
 	throw(errno);
 }
 
-Shader::Shader(const char* vertexFile, const char* fragmentFile)
+Shader::Shader(const GameObject& parent, const glm::vec3 color, const char* vertexFile, const char* fragmentFile) : 
+	gameObject { parent }
 {
 	// Configurar as variáveis do Shader
 	// Vulgo criar VAO, VBO e EBO
@@ -30,7 +39,7 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	// > Quadrado colorido
 	// > Textura
 	// > Múltiplas (2) texturas
-	GenerateShader();
+	GenerateShader(color);
 
 	// Transform
 	viewMat = glm::mat4(1.0f);
@@ -46,16 +55,11 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	// rotacionadas como base.
 	// 
 
-	projecMat = glm::perspective(glm::radians(45.0f), 800.0f / 800.0f, 0.1f, 100.0f);
-	modelMat = glm::translate(modelMat, glm::vec3(0.0f, 0.0f, 0.0f));
-
 	// Aplicar transforms
 	glUseProgram(ID);
-	setMat4("model", modelMat);
-	setMat4("view", viewMat);
-	setMat4("projection", projecMat);
-
-	//glUniformMatrix4fv(transformID, 1, GL_FALSE, glm::value_ptr(viewMat));
+	SetMat4("model", modelMat);
+	SetMat4("view", viewMat);
+	SetMat4("projection", projecMat);
 }
 
 Shader::~Shader()
@@ -100,35 +104,46 @@ void Shader::CompileErrors(GLuint shader, const char* type)
 
 void Shader::Render()
 {
-	// Bindar textura para ser usada
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
 	// Bindar o programa (shader) atual para ser usado 
 	glUseProgram(ID);
-	
-	// View
-	// viewMat = glm::lookAt(pos, pos + front, up);
-	
-	glm::vec3 camPos = Camera::GetInstance().position;
-	glm::vec3 camFront = Camera::GetInstance().front;
-	glm::vec3 camUp = Camera::GetInstance().up;
 
+	// Atualizar transforms
+	// Matriz de projeção
 	projecMat = glm::perspective(glm::radians(Camera::GetInstance().fov),
-		800.0f / 800.0f, 0.1f, 100.0f);
-	setMat4("projection", projecMat);
+		(float)(LUPEngine::WIDTH) / (float)(LUPEngine::HEIGHT), 0.1f, 100.0f);
+	SetMat4("projection", projecMat);
 
-	viewMat = glm::lookAt(camPos, camPos + camFront, camUp);
-	setMat4("view", viewMat);
+	// Matriz de visualização
+	viewMat = Camera::GetInstance().GetViewMatrix();
+	SetMat4("view", viewMat);
+	
+	// Aplicar transforms na matriz de modelo
+	modelMat = glm::mat4(1.0f);
+	if (glm::length(gameObject.position) != 0)
+		modelMat = glm::translate(modelMat, gameObject.position);
+	if (glm::length(gameObject.rotation) != 0)
+	{
+		modelMat = glm::rotate(modelMat,
+			glm::radians(glm::length(gameObject.rotation)),
+			glm::normalize(GetCorrectedRotation()));
+	}
 
-	// Model
-	modelMat = glm::rotate(modelMat, glm::radians(45.0f * Time::deltaTime), glm::vec3(0.0f, 1.0f, 0.0f));
-	setMat4("model", modelMat);
+	// Atualizar matriz de modelo
+	SetMat4("model", modelMat);
 
 	// Bind o VAO para ser o próximo a ser usado
 	glBindVertexArray(VAO);
+	// Bindar textura para ser usada
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 	// Renderizar elemento usando os dados bindados
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	// Cleanup
+	glUseProgram(0);
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	modelMat = glm::mat4(1.0f);
 }
 
 void Shader::ConfigShader(const char* vertexFile, const char* fragmentFile)
@@ -174,21 +189,21 @@ void Shader::ConfigShader(const char* vertexFile, const char* fragmentFile)
 	glDeleteShader(fragmentShader);
 }
 
-void Shader::GenerateShader()
+void Shader::GenerateShader(glm::vec3 color)
 {
 	// Vertices coordinates
 	// x, y, z, CORES (RGB), Coordenadas da textura
 	GLfloat vertices[] =
 	{
-		-0.5f, -0.5f, 0.5f,     1.0f, 1.0f, 1.0f,	0.0f, 0.0f, // Lower left corner
-		-0.5f,  0.5f, 0.5f,     1.0f, 1.0f, 1.0f,	0.0f, 1.0f, // Upper left corner
-		0.5f,  0.5f, 0.5f,		1.0f, 1.0f, 1.0f,	1.0f, 1.0f, // Upper right corner
-		0.5f, -0.5f, 0.5f,		1.0f, 1.0f, 1.0f,	1.0f, 0.0f,  // Lower right corner
+		-0.5f, -0.5f, 0.5f,     color.x, color.y, color.z,	0.0f, 0.0f, // Lower left corner
+		-0.5f,  0.5f, 0.5f,     color.x, color.y, color.z,	0.0f, 1.0f, // Upper left corner
+		0.5f,  0.5f, 0.5f,		color.x, color.y, color.z,	1.0f, 1.0f, // Upper right corner
+		0.5f, -0.5f, 0.5f,		color.x, color.y, color.z,	1.0f, 0.0f,  // Lower right corner
 
-		-0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,	0.0f, 0.0f, // Lower left corner
-		-0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,	0.0f, 1.0f, // Upper left corner
-		0.5f,  0.5f, -0.5f,		1.0f, 1.0f, 1.0f,	1.0f, 1.0f, // Upper right corner
-		0.5f, -0.5f, -0.5f,		1.0f, 1.0f, 1.0f,	1.0f, 0.0f  // Lower right corner
+		-0.5f, -0.5f, -0.5f,    color.x, color.y, color.z,	0.0f, 0.0f, // Lower left corner
+		-0.5f,  0.5f, -0.5f,    color.x, color.y, color.z,	0.0f, 1.0f, // Upper left corner
+		0.5f,  0.5f, -0.5f,		color.x, color.y, color.z,	1.0f, 1.0f, // Upper right corner
+		0.5f, -0.5f, -0.5f,		color.x, color.y, color.z,	1.0f, 0.0f  // Lower right corner
 	};
 
 	// Indices de renderização
@@ -251,6 +266,15 @@ void Shader::GenerateShader()
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	// VAO da luz
+	/*
+	glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+	*/
+
 	// Desbindar tudo
 	glBindVertexArray(0); // VAO
 	glBindBuffer(GL_ARRAY_BUFFER, 0); // VBO
@@ -308,7 +332,15 @@ void Shader::GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
+void Shader::SetMat4(const std::string& name, const glm::mat4& mat) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
+glm::vec3 Shader::GetCorrectedRotation()
+{
+	return glm::vec3(
+		-gameObject.rotation.x,
+		-gameObject.rotation.y,
+		gameObject.rotation.z);
 }

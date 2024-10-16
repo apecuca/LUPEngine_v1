@@ -1,5 +1,7 @@
 #include "Camera.hpp"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "Time.hpp"
 #include "Input.hpp"
 
@@ -7,7 +9,7 @@ Camera* Camera::instance = nullptr;
 
 Camera::Camera() :
     debugMovement { false },
-    lastMousePosition{ glm::vec3(0.0f) }
+    lastMousePosition{ glm::vec3(0.f) }
 {
     if (instance == nullptr)
     {
@@ -17,6 +19,9 @@ Camera::Camera() :
     {
         delete this;
     }
+
+    GetInstance().SetPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+    GetInstance().SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
 Camera& Camera::GetInstance()
@@ -28,11 +33,10 @@ void Camera::Update()
 {
     if (Input::GetKey(GLFW_KEY_R))
     {
-        position = glm::vec3(0.f);
-        SetRotation(glm::vec3(0.f));
+        GetInstance().SetPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+        GetInstance().SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+        fov = 60.0f;
     }
-
-    
 
     if (Input::GetKeyDown(GLFW_KEY_LEFT_ALT))
     {
@@ -44,21 +48,27 @@ void Camera::Update()
             debugMovement ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     }
 
-    if (debugMovement) DebugMovementHandler();
+    if (Input::GetKey(GLFW_KEY_DOWN))
+        fov -= 20.0f * Time::deltaTime;
+    if (Input::GetKey(GLFW_KEY_UP))
+        fov += 20.0f * Time::deltaTime;
+
+    if (debugMovement)
+        DebugMovementHandler();
 }
 
 void Camera::DebugMovementHandler()
 {
     // Movimentação
-    float moveSpeed = 3.0f * Time::deltaTime;
+    float moveSpeed = 3.f * Time::deltaTime;
 
-    position += right * (moveSpeed * Input::horizontal);
-    position += front * (moveSpeed * Input::vertical);
+    SetPosition(position + right * (moveSpeed * Input::horizontal));
+    SetPosition(position + front * (moveSpeed * Input::vertical));
 
     if (Input::GetKey(GLFW_KEY_SPACE))
-        position += up * moveSpeed;
+        SetPosition(position + up * moveSpeed);
     if (Input::GetKey(GLFW_KEY_LEFT_CONTROL))
-        position -= up * moveSpeed;
+        SetPosition(position - up * moveSpeed);
 
     // Rotação
     glm::vec2 mousePos = Input::mousePosition;
@@ -72,4 +82,9 @@ void Camera::DebugMovementHandler()
 
     // Atualizar última posição
     lastMousePosition = mousePos;
+}
+
+glm::mat4 Camera::GetViewMatrix()
+{
+    return glm::lookAt(position, position + front, up);
 }

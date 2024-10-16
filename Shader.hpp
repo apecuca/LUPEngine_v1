@@ -3,44 +3,44 @@
 #include <glad/glad.h>
 
 // Base libs
-#include <fstream>
 #include <iostream>
-#include <vector>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// Load de imagens
-#include <stb/stb_image.h>
 
 // Lib de matemática
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 std::string get_file_contents(const char* filename);
 
+// Forward declaration
+class GameObject;
+
+// Classe para lidar com renderização
 class Shader
 {
 public:
 	// Constructor com iniialiação padrão
 	Shader(
+		const GameObject& parent,
+		const glm::vec3 color,
 		const char* vertexFile = "Shaders/default.vert",
 		const char* fragmentFile = "Shaders/default.frag"
 	);
+
 	// Destructor
 	~Shader();
 
 	// Método para renderizar
 	void Render();
+	// Gerenciamento
 
 private:
+	const GameObject& gameObject;
 	// Coisas do OpenGL
 	// Vertex Buffer Object,
 	// Vertex Array Object
 	// Buffer de índices
 	GLuint ID;
 	GLuint VAO, VBO, EBO;
+	//GLuint lightVAO;
 	GLuint texture;
 	
 	// Transform
@@ -55,14 +55,14 @@ private:
 	const char* texFiles[3] {"default_tex.png", "brick.png", "pop_cat.png"};
 
 	void ConfigShader(const char* vertexFile, const char* fragmentFile);
-	void GenerateShader();
+	void GenerateShader(const glm::vec3 color);
 	// Pointer da variável que vai estar a textura
-	void GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex);
+	void GenerateTexture(GLuint* texVar, int fileIndex, GLenum texIndex);
 
 	// Gerenciamento
-	void setMat4(const std::string& name, const glm::mat4& mat) const;
+	void SetMat4(const std::string& name, const glm::mat4& mat) const;
+	glm::vec3 GetCorrectedRotation();
 
 	// Compila e indica erros de compilação
 	void CompileErrors(GLuint shader, const char* type);
-
 };
