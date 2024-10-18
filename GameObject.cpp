@@ -6,16 +6,17 @@
 
 #include "GLFW/glfw3.h"
 
-void GameObject::InitShader(glm::vec3 color)
+void GameObject::InitShader()
 {
 	//shader = new Shader(color);
-	shader = std::make_unique<Shader>(*this, color);
+	shader = std::make_unique<Shader>(*this);
 	SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+	SetPosition(glm::vec3(0.0f));
 }
 
 void GameObject::Update()
 {
-	Rotate(glm::vec3(0.0f, 45.0f, 0.0f) * Time::deltaTime);
+	//Rotate(glm::vec3(0.0f, 25.0f, 0.0f) * Time::deltaTime);
 }
 
 void GameObject::Render()
@@ -75,14 +76,4 @@ void GameObject::UpdateRotation(glm::vec3 lastOperation)
 		cos(glm::radians(rotation.y)),
 		sin(glm::radians(rotation.y)) * cos(glm::radians(rotation.x))
 	));
-
-	// Shader
-	/*
-	if (shader == nullptr) return;
-	shader->Rotate(glm::vec3(
-		lastOperation.y,
-		lastOperation.x,
-		lastOperation.z
-	));
-	*/
 }

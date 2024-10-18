@@ -18,9 +18,12 @@ LUPEngine::LUPEngine()
 	Time::UpdateTimeVars();
 
 	// Instanciar objetos
-	GameObject& newObj = InstantiateObject();
-	newObj.InitShader(glm::vec3(1.0f));
-	newObj.SetPosition(glm::vec3(0.0f));
+	for (int i = 0; i < 3; i++)
+	{
+		GameObject& newObj = InstantiateObject();
+		newObj.InitShader();
+		newObj.position = glm::vec3(-1.25f + (1.25 * i), 0.0f, 0.0f);
+	}
 
 	// Finish startup
 	Debug::Log("Engine succesfully started!");

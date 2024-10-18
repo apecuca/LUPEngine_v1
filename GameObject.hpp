@@ -29,7 +29,7 @@ public:
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	//
-	void InitShader(glm::vec3 color);
+	void InitShader();
 
 	void Update();
 	void Render();

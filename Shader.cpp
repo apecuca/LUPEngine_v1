@@ -27,7 +27,7 @@ std::string get_file_contents(const char* filename) {
 	throw(errno);
 }
 
-Shader::Shader(const GameObject& parent, const glm::vec3 color, const char* vertexFile, const char* fragmentFile) : 
+Shader::Shader(const GameObject& parent, const char* vertexFile, const char* fragmentFile) : 
 	gameObject { parent }
 {
 	// Configurar as variáveis do Shader
@@ -39,7 +39,7 @@ Shader::Shader(const GameObject& parent, const glm::vec3 color, const char* vert
 	// > Quadrado colorido
 	// > Textura
 	// > Múltiplas (2) texturas
-	GenerateShader(color);
+	GenerateShader();
 
 	// Transform
 	viewMat = glm::mat4(1.0f);
@@ -119,8 +119,7 @@ void Shader::Render()
 	
 	// Aplicar transforms na matriz de modelo
 	modelMat = glm::mat4(1.0f);
-	if (glm::length(gameObject.position) != 0)
-		modelMat = glm::translate(modelMat, gameObject.position);
+	modelMat = glm::translate(modelMat, gameObject.position);
 	if (glm::length(gameObject.rotation) != 0)
 	{
 		modelMat = glm::rotate(modelMat,
@@ -131,13 +130,20 @@ void Shader::Render()
 	// Atualizar matriz de modelo
 	SetMat4("model", modelMat);
 
+	// Atualizar luz
+	SetVec3("lightColor", glm::vec3(1.0f, 0.9568627f, 0.8392157f));
+	SetVec3("lightPos", glm::vec3(
+		sin(glfwGetTime()) * 10.0f, 5.0f, cos(glfwGetTime()) * 10.0f));
+	SetVec3("viewPos", Camera::GetInstance().position);
+
 	// Bind o VAO para ser o próximo a ser usado
 	glBindVertexArray(VAO);
 	// Bindar textura para ser usada
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	// Renderizar elemento usando os dados bindados
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	// Cleanup
 	glUseProgram(0);
@@ -189,45 +195,57 @@ void Shader::ConfigShader(const char* vertexFile, const char* fragmentFile)
 	glDeleteShader(fragmentShader);
 }
 
-void Shader::GenerateShader(glm::vec3 color)
+void Shader::GenerateShader()
 {
-	// Vertices coordinates
-	// x, y, z, CORES (RGB), Coordenadas da textura
+	// Info das vertices
 	GLfloat vertices[] =
 	{
-		-0.5f, -0.5f, 0.5f,     color.x, color.y, color.z,	0.0f, 0.0f, // Lower left corner
-		-0.5f,  0.5f, 0.5f,     color.x, color.y, color.z,	0.0f, 1.0f, // Upper left corner
-		0.5f,  0.5f, 0.5f,		color.x, color.y, color.z,	1.0f, 1.0f, // Upper right corner
-		0.5f, -0.5f, 0.5f,		color.x, color.y, color.z,	1.0f, 0.0f,  // Lower right corner
-
-		-0.5f, -0.5f, -0.5f,    color.x, color.y, color.z,	0.0f, 0.0f, // Lower left corner
-		-0.5f,  0.5f, -0.5f,    color.x, color.y, color.z,	0.0f, 1.0f, // Upper left corner
-		0.5f,  0.5f, -0.5f,		color.x, color.y, color.z,	1.0f, 1.0f, // Upper right corner
-		0.5f, -0.5f, -0.5f,		color.x, color.y, color.z,	1.0f, 0.0f  // Lower right corner
+		// Posição				Normals					// Tex coords
+		-0.5f, -0.5f, -0.5f,	0.0f,  0.0f, -1.0f,		0.0, 0.0,
+		 0.5f, -0.5f, -0.5f,	0.0f,  0.0f, -1.0f,		1.0, 0.0,
+		 0.5f,  0.5f, -0.5f,	0.0f,  0.0f, -1.0f,		1.0, 1.0,
+		 0.5f,  0.5f, -0.5f,	0.0f,  0.0f, -1.0f,		1.0, 1.0,
+		-0.5f,  0.5f, -0.5f,	0.0f,  0.0f, -1.0f,		0.0, 1.0,
+		-0.5f, -0.5f, -0.5f,	0.0f,  0.0f, -1.0f,		0.0, 0.0,
+		 
+		-0.5f, -0.5f,  0.5f,	0.0f,  0.0f,  1.0f,		0.0, 0.0,
+		 0.5f, -0.5f,  0.5f,	0.0f,  0.0f,  1.0f,		1.0, 0.0,
+		 0.5f,  0.5f,  0.5f,	0.0f,  0.0f,  1.0f,		1.0, 1.0,
+		 0.5f,  0.5f,  0.5f,	0.0f,  0.0f,  1.0f,		1.0, 1.0,
+		-0.5f,  0.5f,  0.5f,	0.0f,  0.0f,  1.0f,		0.0, 1.0,
+		-0.5f, -0.5f,  0.5f,	0.0f,  0.0f,  1.0f,		0.0, 0.0,
+		 
+		-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,	0.0, 0.0,
+		-0.5f,  0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,	1.0, 0.0,
+		-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,	1.0, 1.0,
+		-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,	1.0, 1.0,
+		-0.5f, -0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,	0.0, 1.0,
+		-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,	0.0, 0.0,
+		 
+		 0.5f,  0.5f,  0.5f,	1.0f,  0.0f,  0.0f,		0.0, 0.0,
+		 0.5f,  0.5f, -0.5f,	1.0f,  0.0f,  0.0f,		1.0, 0.0,
+		 0.5f, -0.5f, -0.5f,	1.0f,  0.0f,  0.0f,		1.0, 1.0,
+		 0.5f, -0.5f, -0.5f,	1.0f,  0.0f,  0.0f,		1.0, 1.0,
+		 0.5f, -0.5f,  0.5f,	1.0f,  0.0f,  0.0f,		0.0, 1.0,
+		 0.5f,  0.5f,  0.5f,	1.0f,  0.0f,  0.0f,		0.0, 0.0,
+		 
+		-0.5f, -0.5f, -0.5f,	0.0f, -1.0f,  0.0f,		0.0, 0.0,
+		 0.5f, -0.5f, -0.5f,	0.0f, -1.0f,  0.0f,		1.0, 0.0,
+		 0.5f, -0.5f,  0.5f,	0.0f, -1.0f,  0.0f,		1.0, 1.0,
+		 0.5f, -0.5f,  0.5f,	0.0f, -1.0f,  0.0f,		1.0, 1.0,
+		-0.5f, -0.5f,  0.5f,	0.0f, -1.0f,  0.0f,		0.0, 1.0,
+		-0.5f, -0.5f, -0.5f,	0.0f, -1.0f,  0.0f,		0.0, 0.0,
+		 
+		-0.5f,  0.5f, -0.5f,	0.0f,  1.0f,  0.0f,		0.0, 0.0,
+		 0.5f,  0.5f, -0.5f,	0.0f,  1.0f,  0.0f,		1.0, 0.0,
+		 0.5f,  0.5f,  0.5f,	0.0f,  1.0f,  0.0f,		1.0, 1.0,
+		 0.5f,  0.5f,  0.5f,	0.0f,  1.0f,  0.0f,		1.0, 1.0,
+		-0.5f,  0.5f,  0.5f,	0.0f,  1.0f,  0.0f,		0.0, 1.0,
+		-0.5f,  0.5f, -0.5f,	0.0f,  1.0f,  0.0f,		0.0, 0.0
 	};
 
 	// Indices de renderização
 	// Ordem de índices para renderização
-	GLuint indices[] =
-	{
-		0, 2, 1,
-		0, 3, 2,
-
-		3, 2, 6,
-		3, 7, 6,
-
-		7, 5, 6,
-		7, 4, 5,
-
-		4, 1, 5,
-		4, 0, 1,
-
-		1, 6, 5,
-		1, 2, 6,
-
-		4, 3, 0,
-		4, 7, 3
-	};
 
 	// informações da mesh
 	vertexCount = static_cast<int>((sizeof(vertices) / sizeof(GLfloat)) / 2.66f);
@@ -243,9 +261,11 @@ void Shader::GenerateShader(glm::vec3 color)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	// Gerar EBO
+	/*
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	*/
 
 	// Bind VBO > Link VBO Attributes > Unbind VBO
 	// Linkar VBO com coordenadas
@@ -255,9 +275,19 @@ void Shader::GenerateShader(glm::vec3 color)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Linkar VBO com cores
+	/*
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	*/
+
+	// Linkar VBO com coordenadas da textura
+
+	// Linkar VBO com normals
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(3);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Linkar VBO com coordenadas da textura
@@ -266,29 +296,13 @@ void Shader::GenerateShader(glm::vec3 color)
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// VAO da luz
-	/*
-	glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-	*/
-
 	// Desbindar tudo
 	glBindVertexArray(0); // VAO
 	glBindBuffer(GL_ARRAY_BUFFER, 0); // VBO
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
 
-	//
-	// TEXTURA DAQUI PRA BAIXO
-	//
-
+	// Textura
 	GenerateTexture(&texture, 1, GL_TEXTURE0);
-
-	// Uniform para textura
-	glUseProgram(ID);
-	glUniform1i(glGetUniformLocation(ID, "tex0"), 0);
 }
 
 void Shader::GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex)
@@ -330,6 +344,15 @@ void Shader::GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex)
 
 	// Unbind textura
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Uniform para textura
+	glUseProgram(ID);
+	glUniform1i(glGetUniformLocation(ID, "tex0"), 0);
+}
+
+void Shader::SetVec3(const std::string& name, const glm::vec3& value) const
+{
+	glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
 }
 
 void Shader::SetMat4(const std::string& name, const glm::mat4& mat) const

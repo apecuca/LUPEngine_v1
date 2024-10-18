@@ -20,7 +20,6 @@ public:
 	// Constructor com iniialiação padrão
 	Shader(
 		const GameObject& parent,
-		const glm::vec3 color,
 		const char* vertexFile = "Shaders/default.vert",
 		const char* fragmentFile = "Shaders/default.frag"
 	);
@@ -40,7 +39,6 @@ private:
 	// Buffer de índices
 	GLuint ID;
 	GLuint VAO, VBO, EBO;
-	//GLuint lightVAO;
 	GLuint texture;
 	
 	// Transform
@@ -55,11 +53,12 @@ private:
 	const char* texFiles[3] {"default_tex.png", "brick.png", "pop_cat.png"};
 
 	void ConfigShader(const char* vertexFile, const char* fragmentFile);
-	void GenerateShader(const glm::vec3 color);
+	void GenerateShader();
 	// Pointer da variável que vai estar a textura
 	void GenerateTexture(GLuint* texVar, int fileIndex, GLenum texIndex);
 
 	// Gerenciamento
+	void SetVec3(const std::string& name, const glm::vec3& value) const;
 	void SetMat4(const std::string& name, const glm::mat4& mat) const;
 	glm::vec3 GetCorrectedRotation();
 
