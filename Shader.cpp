@@ -12,6 +12,7 @@
 // Classes da LUPEngine
 #include "Camera.hpp"
 #include "LUPEngine.hpp"
+#include "Debug.hpp"
 
 std::string get_file_contents(const char* filename) {
 	std::ifstream in(filename, std::ios::binary);
@@ -64,6 +65,15 @@ Shader::Shader(const GameObject& parent, const char* vertexFile, const char* fra
 
 Shader::~Shader()
 {
+	//
+	// Quando um programa é deletado, a memória não é necessariamente livre,
+	// existem três opções que o próprio openGL decide,
+	// dependendo do contexto:
+	// 1 - A memória é liberada imediatamente
+	// 2 - A memória é liberada em algum momento
+	// 3 - A memória não é liberada, deixando o espaço livre para reuso futuro
+	//
+
 	// Deletar os objetos criados
 	// Buffers
 	glDeleteVertexArrays(1, &VAO);
@@ -302,7 +312,8 @@ void Shader::GenerateShader()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
 
 	// Textura
-	GenerateTexture(&texture, 1, GL_TEXTURE0);
+	//GenerateTexture(&texture, 1, GL_TEXTURE0);
+	GenerateTexture(&texture, glm::clamp(LUPEngine::GetObjectCount() - 1, 0, 2), GL_TEXTURE0);
 }
 
 void Shader::GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex)

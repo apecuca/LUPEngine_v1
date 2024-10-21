@@ -6,16 +6,13 @@
 #include "glm/glm.hpp"
 
 // Inicializaçao das variáveis estáticas
-//std::vector<GameObject> LUPEngine::instantiatedObjs;
+std::vector<GameObject> LUPEngine::instantiatedObjs;
 
 LUPEngine::LUPEngine()
 {
 	// Inicialização
 	glEnable(GL_DEPTH_TEST);
 	Input::InitInput(window.getWindowPtr());
-
-	// Updates pré-frame
-	Time::UpdateTimeVars();
 
 	// Instanciar objetos
 	for (int i = 0; i < 3; i++)
@@ -40,6 +37,9 @@ LUPEngine::~LUPEngine()
 
 void LUPEngine::run()
 {
+	float _timer = 0.0f;
+	int _state = 2;
+
 	while (!window.shouldClose()) {
 		// Limpar fundo
 		window.ClearWindow();
@@ -64,6 +64,30 @@ void LUPEngine::run()
 		}
 
 		camObj.Update();
+
+		_timer += Time::deltaTime;
+		if (_timer >= 3.0f)
+		{
+			if (_state % 2 == 0)
+			{
+				for (int i = instantiatedObjs.size() - 1; i >= 0; i--)
+				{
+					DestroyObject(instantiatedObjs.at(i));
+				}
+			}
+			else
+			{
+				for (int i = 0; i < 3; i++)
+				{
+					GameObject& newObj = InstantiateObject();
+					newObj.InitShader();
+					newObj.position = glm::vec3(-1.25f + (1.25 * i), 0.0f, 0.0f);
+				}
+			}
+
+			_state++;
+			_timer = 0.0f;
+		}
 	}
 }
 
@@ -78,4 +102,15 @@ GameObject& LUPEngine::InstantiateObject()
 	instantiatedObjs.emplace_back();
 
 	return instantiatedObjs.back();
+}
+
+void LUPEngine::DestroyObject(GameObject& obj)
+{
+	for (int i = 0; i < GetObjectCount(); i++)
+	{
+		if (instantiatedObjs.at(i) != obj)
+			continue;
+			
+		instantiatedObjs.erase(instantiatedObjs.begin() + i);
+	}
 }

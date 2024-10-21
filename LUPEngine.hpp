@@ -21,7 +21,9 @@ class LUPEngine
 		void run();
 
 		// Gerenciamento de objetos
-		GameObject& InstantiateObject();
+		static GameObject& InstantiateObject();
+		static void DestroyObject(GameObject& obj);
+		static inline int GetObjectCount() { return static_cast<int>(instantiatedObjs.size()); }
 
 	private:
 		// No futuro, trocar isso aqui pra um pointer
@@ -30,6 +32,6 @@ class LUPEngine
 		Window window{ WIDTH, HEIGHT, "LUPEngine example" };
 
 		// Lista de objetos instancidos
-		std::vector<GameObject> instantiatedObjs;
+		static std::vector<GameObject> instantiatedObjs;
 		Camera camObj;
 };

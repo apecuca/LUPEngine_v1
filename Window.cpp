@@ -25,6 +25,8 @@ void Window::InitWindow() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	// Configs extras
 	glfwWindowHint(GLFW_RESIZABLE, false);
 
 	// Inicia a variável window com a criação de uma janela glfw

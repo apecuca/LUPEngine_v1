@@ -6,16 +6,26 @@ class GameObject
 {
 public:
 	// Constructors padrão
-	GameObject() = default;
+	GameObject();
 	~GameObject() = default;
 
 	// Constructors de cópia
-	GameObject(const GameObject& other) {}
+	GameObject(const GameObject& other) : 
+		uniqueID {nextCreationID} {}
 	GameObject(GameObject&& other) = default;
 
 	// Operação de cópia
-	GameObject& operator=(const GameObject& other) { return *this; }
-	GameObject& operator=(GameObject&& other) = default;
+	GameObject& operator = (const GameObject& other) { return *this; }
+	GameObject& operator = (GameObject&& other) = default;
+
+	// Operação de comparação
+	bool operator == (const GameObject& other) const
+	{
+		return (other.GetUniqueID() == this->GetUniqueID());
+	}
+
+	// Getter do UniqueID (identificação)
+	inline int GetUniqueID() const { return uniqueID; }
 
 	/// Posição do objeto em um plano tri-dimensional (mundo)
 	glm::vec3 position = glm::vec3(0.0f);
@@ -42,6 +52,10 @@ public:
 	// Posição
 	void SetPosition(glm::vec3 pos);
 private:
+	// Identificador
+	int uniqueID;
+	static int nextCreationID;
+
 	// Renderização
 	std::unique_ptr<Shader> shader;
 

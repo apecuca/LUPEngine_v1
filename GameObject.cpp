@@ -6,9 +6,16 @@
 
 #include "GLFW/glfw3.h"
 
+int GameObject::nextCreationID = 0;
+
+GameObject::GameObject() :
+	uniqueID { nextCreationID }
+{
+	nextCreationID++;
+}
+
 void GameObject::InitShader()
 {
-	//shader = new Shader(color);
 	shader = std::make_unique<Shader>(*this);
 	SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	SetPosition(glm::vec3(0.0f));

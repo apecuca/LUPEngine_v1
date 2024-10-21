@@ -29,7 +29,6 @@ public:
 
 	// Método para renderizar
 	void Render();
-	// Gerenciamento
 
 private:
 	const GameObject& gameObject;
