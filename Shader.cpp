@@ -58,9 +58,9 @@ Shader::Shader(const GameObject& parent, const char* vertexFile, const char* fra
 
 	// Aplicar transforms
 	glUseProgram(ID);
-	SetMat4("model", modelMat);
 	SetMat4("view", viewMat);
 	SetMat4("projection", projecMat);
+	SetMat4("model", modelMat);
 }
 
 Shader::~Shader()

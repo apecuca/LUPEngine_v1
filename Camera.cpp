@@ -20,7 +20,7 @@ Camera::Camera() :
         delete this;
     }
 
-    GetInstance().SetPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+    GetInstance().position = glm::vec3(0.0f, 0.0f, -4.0f);
     GetInstance().SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
@@ -33,7 +33,7 @@ void Camera::Update()
 {
     if (Input::GetKey(GLFW_KEY_R))
     {
-        GetInstance().SetPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+        GetInstance().position = glm::vec3(0.0f, 0.0f, -4.0f);
         GetInstance().SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
         fov = 60.0f;
     }
@@ -62,13 +62,13 @@ void Camera::DebugMovementHandler()
     // Movimentação
     float moveSpeed = 3.f * Time::deltaTime;
 
-    SetPosition(position + right * (moveSpeed * Input::horizontal));
-    SetPosition(position + front * (moveSpeed * Input::vertical));
+    position += right * (moveSpeed * Input::horizontal);
+    position += front * (moveSpeed * Input::vertical);
 
     if (Input::GetKey(GLFW_KEY_SPACE))
-        SetPosition(position + up * moveSpeed);
+        position += up * moveSpeed;
     if (Input::GetKey(GLFW_KEY_LEFT_CONTROL))
-        SetPosition(position - up * moveSpeed);
+        position -= up * moveSpeed;
 
     // Rotação
     glm::vec2 mousePos = Input::mousePosition;

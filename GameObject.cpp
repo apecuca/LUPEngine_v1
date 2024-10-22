@@ -18,12 +18,17 @@ void GameObject::InitShader()
 {
 	shader = std::make_unique<Shader>(*this);
 	SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-	SetPosition(glm::vec3(0.0f));
+	position = glm::vec3(0.0f);
 }
 
-void GameObject::Update()
+void GameObject::UpdateBehaviour()
 {
 	//Rotate(glm::vec3(0.0f, 25.0f, 0.0f) * Time::deltaTime);
+	for (int i = 0; i < components.size(); i++)
+	{
+		components.at(i)->Update();
+		//components.at(i)->Create();
+	}
 }
 
 void GameObject::Render()
@@ -53,11 +58,6 @@ void GameObject::SetRotation(glm::vec3 angle, bool clamp)
 		rotation.y = glm::clamp(rotation.y, -89.0f, 89.0f);
 
 	UpdateRotation(angle);
-}
-
-void GameObject::SetPosition(glm::vec3 pos)
-{
-	position = pos;
 }
 
 void GameObject::UpdateRotation(glm::vec3 lastOperation)

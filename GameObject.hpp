@@ -1,6 +1,12 @@
 #pragma once
 
+// Standard classes
+#include <vector>
+#include <iostream>
+
+// LUPE classes
 #include "Shader.hpp"
+#include "Component.hpp"
 
 class GameObject
 {
@@ -41,7 +47,7 @@ public:
 	//
 	void InitShader();
 
-	void Update();
+	void UpdateBehaviour();
 	void Render();
 
 	// Rotação
@@ -49,8 +55,13 @@ public:
 	void SetRotation(glm::vec3 angle, bool clamp);
 	void Rotate(glm::vec3 angle);
 
-	// Posição
-	void SetPosition(glm::vec3 pos);
+	// Adiciona uma classe derivada de Component como um componente do objeto
+	template <class T> void AddComponent()
+	{
+		components.reserve(1);
+		components.push_back(std::make_unique<T>(*this));
+	}
+
 private:
 	// Identificador
 	int uniqueID;
@@ -58,6 +69,9 @@ private:
 
 	// Renderização
 	std::unique_ptr<Shader> shader;
+
+	// Components
+	std::vector<std::unique_ptr<Component>> components;
 
 	void UpdateRotation(glm::vec3 lastOperation);
 };	

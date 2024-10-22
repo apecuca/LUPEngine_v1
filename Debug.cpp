@@ -24,3 +24,8 @@ void Debug::Log(const double text)
 {
 	std::cout << text << "\n";
 }
+
+void Debug::Log(const bool value)
+{
+	std::cout << value << "\n";
+}
