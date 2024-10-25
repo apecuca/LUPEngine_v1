@@ -31,8 +31,10 @@
 *.out
 *.app
 
-# Visual studio folder
-.vs/*
+# Visual studio stuff
+.vs/
+.x64/
+*.vcxproj
 
 # Library folder
 Libraries/
