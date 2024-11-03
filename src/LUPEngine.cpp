@@ -16,10 +16,11 @@ LUPEngine::LUPEngine()
 	Input::InitInput(window.getWindowPtr());
 
 	// Instanciar objetos
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		GameObject& newObj = InstantiateObject();
 		newObj.InitShader();
+		//newObj.scale = glm::vec3(0.2f);
 		//newObj.AddComponent<GenericComponent>();
 		//newObj.position = glm::vec3(-1.25f + (1.25 * i), 0.0f, 0.0f);
 	}

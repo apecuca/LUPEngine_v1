@@ -3,6 +3,7 @@
 #include "Debug.hpp"
 #include "Time.hpp"
 #include "Input.hpp"
+#include "Camera.hpp"
 
 #include "GLFW/glfw3.h"
 
@@ -12,13 +13,15 @@ GameObject::GameObject() :
 	uniqueID { nextCreationID }
 {
 	nextCreationID++;
+
+	//Debug::Log(Camera::WorldToScreenPoint(position));
 }
 
 void GameObject::InitShader()
 {
 	shader = std::make_unique<Shader>(*this);
 	SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-	position = glm::vec3(0.0f);
+	position = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 void GameObject::UpdateBehaviour()

@@ -21,8 +21,16 @@ public:
     // Retorna a view matrix
     glm::mat4 GetViewMatrix();
 
+    // Retorna a transformação de uma coordenada no mundo para um ponto na tela
+    static glm::vec2 WorldToScreenPoint(glm::vec3 position);
+
+    // Retorna a transformação de um ponto na tela para uma coordenada no mundo
+    static glm::vec3 ScreenToWorldPoint(glm::vec2 point);
+
     // Membro herdado
     void Update();
+
+
 
 private:
     bool debugMovement;

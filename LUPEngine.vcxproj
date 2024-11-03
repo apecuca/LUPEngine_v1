@@ -23,30 +23,30 @@
     <None Include="Shaders\default.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Component.cpp" />
-    <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="Input.cpp" />
-    <ClCompile Include="LUPEngine.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Component.cpp" />
+    <ClCompile Include="src\Debug.cpp" />
+    <ClCompile Include="src\GameObject.cpp" />
+    <ClCompile Include="src\Input.cpp" />
+    <ClCompile Include="src\LUPEngine.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Shader.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp20</LanguageStandard>
     </ClCompile>
-    <ClCompile Include="stb.cpp" />
-    <ClCompile Include="Time.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="src\stb.cpp" />
+    <ClCompile Include="src\Time.cpp" />
+    <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.hpp" />
-    <ClInclude Include="Component.hpp" />
-    <ClInclude Include="Debug.hpp" />
-    <ClInclude Include="GameObject.hpp" />
-    <ClInclude Include="Input.hpp" />
-    <ClInclude Include="LUPEngine.hpp" />
-    <ClInclude Include="Shader.hpp" />
-    <ClInclude Include="Time.hpp" />
-    <ClInclude Include="Window.hpp" />
+    <ClInclude Include="src\Camera.hpp" />
+    <ClInclude Include="src\Component.hpp" />
+    <ClInclude Include="src\Debug.hpp" />
+    <ClInclude Include="src\GameObject.hpp" />
+    <ClInclude Include="src\Input.hpp" />
+    <ClInclude Include="src\LUPEngine.hpp" />
+    <ClInclude Include="src\Shader.hpp" />
+    <ClInclude Include="src\Time.hpp" />
+    <ClInclude Include="src\Window.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

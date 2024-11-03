@@ -136,6 +136,7 @@ void Shader::Render()
 			glm::radians(glm::length(gameObject.rotation)),
 			glm::normalize(GetCorrectedRotation()));
 	}
+	modelMat = glm::scale(modelMat, gameObject.scale);
 
 	// Atualizar matriz de modelo
 	SetMat4("model", modelMat);
