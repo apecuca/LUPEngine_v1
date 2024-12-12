@@ -12,17 +12,16 @@ std::vector<GameObject> LUPEngine::instantiatedObjs;
 LUPEngine::LUPEngine()
 {
 	// Inicialização
-	glEnable(GL_DEPTH_TEST);
 	Input::InitInput(window.getWindowPtr());
 
 	// Instanciar objetos
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		GameObject& newObj = InstantiateObject();
 		newObj.InitShader();
 		//newObj.scale = glm::vec3(0.2f);
 		//newObj.AddComponent<GenericComponent>();
-		//newObj.position = glm::vec3(-1.25f + (1.25 * i), 0.0f, 0.0f);
+		newObj.position = glm::vec3(-1.25f + (1.25 * i), 0.0f, 0.0f);
 	}
 
 	// Finish startup

@@ -61,6 +61,18 @@ Shader::Shader(const GameObject& parent, const char* vertexFile, const char* fra
 	SetMat4("view", viewMat);
 	SetMat4("projection", projecMat);
 	SetMat4("model", modelMat);
+
+	// Light data
+	SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+	SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+	SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+	// Material data
+	SetVec3("material.ambient", 0.15f, 0.15f, 0.15f);
+	GenerateTexture(&diffuseMap, glm::clamp(LUPEngine::GetObjectCount() - 1, 0, 2),
+		"material.diffuse", 0);
+	GenerateTexture(&specularMap, 3, "material.specular", 1);
+	SetFloat("material.shininess", 64.0f);
 }
 
 Shader::~Shader()
@@ -80,7 +92,8 @@ Shader::~Shader()
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
 	// Textura
-	glDeleteTextures(1, &texture);
+	glDeleteTextures(1, &diffuseMap);
+	glDeleteTextures(1, &specularMap);
 	// Programa (shader)
     glDeleteProgram(ID);
 }
@@ -142,8 +155,7 @@ void Shader::Render()
 	SetMat4("model", modelMat);
 
 	// Atualizar luz
-	SetVec3("lightColor", glm::vec3(1.0f, 0.9568627f, 0.8392157f));
-	SetVec3("lightPos", glm::vec3(
+	SetVec3("light.position", glm::vec3(
 		sin(glfwGetTime()) * 10.0f, 5.0f, cos(glfwGetTime()) * 10.0f));
 	SetVec3("viewPos", Camera::GetInstance().position);
 
@@ -151,7 +163,9 @@ void Shader::Render()
 	glBindVertexArray(VAO);
 	// Bindar textura para ser usada
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, diffuseMap);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, specularMap);
 	// Renderizar elemento usando os dados bindados
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
@@ -271,34 +285,11 @@ void Shader::GenerateShader()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// Gerar EBO
-	/*
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	*/
-
 	// Bind VBO > Link VBO Attributes > Unbind VBO
 	// Linkar VBO com coordenadas
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// Linkar VBO com cores
-	/*
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	*/
-
-	// Linkar VBO com coordenadas da textura
-
-	// Linkar VBO com normals
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(3);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Linkar VBO com coordenadas da textura
@@ -307,44 +298,58 @@ void Shader::GenerateShader()
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	// Linkar VBO com normals
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(3);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	// Desbindar tudo
 	glBindVertexArray(0); // VAO
 	glBindBuffer(GL_ARRAY_BUFFER, 0); // VBO
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
-
-	// Textura
-	//GenerateTexture(&texture, 1, GL_TEXTURE0);
-	GenerateTexture(&texture, glm::clamp(LUPEngine::GetObjectCount() - 1, 0, 2), GL_TEXTURE0);
 }
 
-void Shader::GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex)
+void Shader::GenerateTexture(GLuint *texVar, int fileIndex, const std::string uniformName, int uniformLoc)
 {
+	// Depois tem que mudar isso aqui, tá mt feio
+	std::string filePath = "Resources/Images/" + static_cast<std::string>(texFiles[fileIndex]);
+
 	// Gerar textura 1 (pointer para variável da textura
 	glGenTextures(1, texVar);
-	// Binda a textura para ser usada
-	glActiveTexture(texIndex);
-	glBindTexture(GL_TEXTURE_2D, *texVar);
-	// set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// load and generate the texture
 	stbi_set_flip_vertically_on_load(true);
 	int width, height, nrChannels;
-	// Depois tem que mudar isso aqui, tá mt feio
-	std::string filePath = "Resources/Images/" + static_cast<std::string>(texFiles[fileIndex]);
 
 	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
 	// Error handling
 	if (data)
 	{
+		GLenum format = GL_RGB;
+		if (nrChannels == 1)
+			format = GL_RED;
+		else if (nrChannels == 3)
+			format = GL_RGB;
+		else if (nrChannels == 4)
+			format = GL_RGBA;
+
+		// Binda textura a ser usada
+		glBindTexture(GL_TEXTURE_2D, *texVar);
 		// Assigns the image to the OpenGL Texture object
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		// Generates MipMaps
 		glGenerateMipmap(GL_TEXTURE_2D);
+
+		// set the texture wrapping parameters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		// set texture filtering parameters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Unbind textura
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	else
 	{
@@ -354,17 +359,29 @@ void Shader::GenerateTexture(GLuint *texVar, int fileIndex, GLenum texIndex)
 	// Limpar a memória da imagem
 	stbi_image_free(data);
 
-	// Unbind textura
-	glBindTexture(GL_TEXTURE_2D, 0);
-
 	// Uniform para textura
 	glUseProgram(ID);
-	glUniform1i(glGetUniformLocation(ID, "tex0"), 0);
+	SetInt(uniformName, uniformLoc);
+}
+
+void Shader::SetInt(const std::string& name, int value) const
+{
+	glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void Shader::SetFloat(const std::string& name, float value) const
+{
+	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
 void Shader::SetVec3(const std::string& name, const glm::vec3& value) const
 {
 	glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
+}
+
+void Shader::SetVec3(const std::string& name, float x, float y, float z) const
+{
+	glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
 }
 
 void Shader::SetMat4(const std::string& name, const glm::mat4& mat) const

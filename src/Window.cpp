@@ -40,6 +40,16 @@ void Window::InitWindow() {
 
 	// define o tamanho e origem do viewport
 	glViewport(0, 0, width, height);
+
+	// Profundidade
+	glEnable(GL_DEPTH_TEST);
+
+	// Alpha blending
+	glEnable(GL_BLEND);
+	// Premultiplied alpha
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	// non-premultiplied alpha
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Window::ClearWindow()

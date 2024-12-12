@@ -38,7 +38,9 @@ private:
 	// Buffer de índices
 	GLuint ID;
 	GLuint VAO, VBO, EBO;
-	GLuint texture;
+	//GLuint texture;
+	GLuint diffuseMap;
+	GLuint specularMap;
 	
 	// Transform
 	glm::mat4 viewMat;
@@ -49,15 +51,18 @@ private:
 	int vertexCount;
 
 	// Nomes dos arquivos das texturas
-	const char* texFiles[3] {"default_tex.png", "brick.png", "pop_cat.png"};
+	const char* texFiles[4] {"default_tex.png", "brick.png", "pop_cat.png", "container_specular.png"};
 
 	void ConfigShader(const char* vertexFile, const char* fragmentFile);
 	void GenerateShader();
 	// Pointer da variável que vai estar a textura
-	void GenerateTexture(GLuint* texVar, int fileIndex, GLenum texIndex);
+	void GenerateTexture(GLuint* texVar, int fileIndex, const std::string uniformName, int uniformLoc);
 
 	// Gerenciamento
+	void SetInt(const std::string& name, int value) const;
+	void SetFloat(const std::string& name, float value) const;
 	void SetVec3(const std::string& name, const glm::vec3& value) const;
+	void SetVec3(const std::string& name, float x, float y, float z) const;
 	void SetMat4(const std::string& name, const glm::mat4& mat) const;
 	glm::vec3 GetCorrectedRotation();
 

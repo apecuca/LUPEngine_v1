@@ -74,12 +74,13 @@ void Camera::DebugMovementHandler()
         position -= up * moveSpeed;
 
     // Rotação
+    float mouseSense = 15.f;
     glm::vec2 mousePos = Input::mousePosition;
     glm::vec2 posOffset = (glm::vec2(
         mousePos.x - lastMousePosition.x, mousePos.y - lastMousePosition.y));
     SetRotation(glm::vec3(
-        rotation.x - posOffset.x * 5.f * Time::deltaTime,
-        rotation.y + posOffset.y * 5.f * Time::deltaTime,
+        rotation.x - posOffset.x * mouseSense * Time::deltaTime,
+        rotation.y + posOffset.y * mouseSense * Time::deltaTime,
         rotation.z
     ), true);
 
