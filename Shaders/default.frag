@@ -35,17 +35,18 @@ uniform Material material;
 
 void main()
 {
+    vec4 backTex = texture(material.diffuse, texCoord);
+    vec4 frontTex = texture(material.specular, texCoord);
+    vec3 mixedTexture = (frontTex * frontTex.a + backTex * (1 - frontTex.a)).xyz;
+
     // ambient
-    vec4 backAmbient = texture(material.diffuse, texCoord);
-    vec4 frontAmbient = texture(material.specular, texCoord);
-    vec3 ambient = (frontAmbient * frontAmbient.a + backAmbient * (1 - frontAmbient.a)).xyz;
-    ambient *= light.ambient;
+    vec3 ambient = mixedTexture * light.ambient;
   	
     // diffuse 
     vec3 norm = normalize(normals);
     vec3 lightDir = normalize(light.position - fragPos);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * texture(material.diffuse, texCoord).rgb;
+    vec3 diffuse = light.diffuse * diff * mixedTexture;
     
     // specular
     vec3 viewDir = normalize(viewPos - fragPos);
