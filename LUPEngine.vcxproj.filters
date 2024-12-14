@@ -24,6 +24,12 @@
     <None Include="Shaders\default.vert">
       <Filter>Arquivos de Recurso\Shaders</Filter>
     </None>
+    <None Include="Shaders\skybox.frag">
+      <Filter>Arquivos de Recurso\Shaders</Filter>
+    </None>
+    <None Include="Shaders\skybox.vert">
+      <Filter>Arquivos de Recurso\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -59,6 +65,9 @@
     <ClCompile Include="src\Component.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
+    <ClCompile Include="src\Skybox.cpp">
+      <Filter>Arquivos de Origem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\LUPEngine.hpp">
@@ -86,6 +95,9 @@
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
     <ClInclude Include="src\Component.hpp">
+      <Filter>Arquivos de Cabeçalho</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Skybox.hpp">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
   </ItemGroup>

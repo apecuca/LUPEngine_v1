@@ -49,6 +49,10 @@ void LUPEngine::run()
 			instantiatedObjs.at(i).Render();
 		}
 
+		// Renderizar Skybox
+		//skybox.Render();
+		piririm.Render();
+
 		// Inverter os buffers de vídeo
 		window.SwapBuffers();
 

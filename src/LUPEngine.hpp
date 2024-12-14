@@ -7,6 +7,7 @@
 #include "Window.hpp"
 #include "GameObject.hpp"
 #include "Camera.hpp"
+#include "Skybox.hpp"
 
 class LUPEngine
 {
@@ -33,5 +34,9 @@ class LUPEngine
 
 		// Lista de objetos instancidos
 		static std::vector<GameObject> instantiatedObjs;
+
+		// Objetos para teste
 		Camera camObj;
+		//Skybox skybox;
+		Skybox piririm;
 };

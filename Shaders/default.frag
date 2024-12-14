@@ -3,14 +3,19 @@
 // Outputs colors in RGBA
 out vec4 FragColor;
 
+// Struct com dados da luz
 struct Light {
     vec3 position;
 
     vec3 ambient;
+    float ambientStrength;
+
     vec3 diffuse;
+
     vec3 specular;
 };
 
+// Dados do material
 struct Material {
     sampler2D diffuse;
     sampler2D specular;
@@ -24,23 +29,29 @@ in vec3 color;
 // Inputs the texture coordinates from the Vertex Shader
 in vec2 texCoord;
 
-// Normals
+// Normal e pos
 in vec3 normals;
 in vec3 fragPos;
 
 uniform vec3 viewPos;
 
+// Uniforms com info da luz e material
 uniform Light light;
 uniform Material material;
 
 void main()
 {
+    // Textura principal
+    // Essa junção só tá aqui por enquanto pra 
+    // aprender a usar o alpha channel
     vec4 backTex = texture(material.diffuse, texCoord);
     vec4 frontTex = texture(material.specular, texCoord);
     vec3 mixedTexture = (frontTex * frontTex.a + backTex * (1 - frontTex.a)).xyz;
+    // Colorizar textura
+    mixedTexture *= color;
 
     // ambient
-    vec3 ambient = mixedTexture * light.ambient;
+    vec3 ambient = mixedTexture * light.ambient * light.ambientStrength;
   	
     // diffuse 
     vec3 norm = normalize(normals);

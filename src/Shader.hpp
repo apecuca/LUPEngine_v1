@@ -20,6 +20,10 @@ public:
 	// Constructor com iniialiação padrão
 	Shader(
 		const GameObject& parent,
+
+		const int diffuseMapIndex = 0,
+		const int specularMapIndex = 0,
+
 		const char* vertexFile = "Shaders/default.vert",
 		const char* fragmentFile = "Shaders/default.frag"
 	);
@@ -30,6 +34,9 @@ public:
 	// Método para renderizar
 	void Render();
 
+	// Compila e indica erros de compilação
+	static void CompileErrors(GLuint shader, const char* type);
+
 private:
 	const GameObject& gameObject;
 	// Coisas do OpenGL
@@ -37,7 +44,7 @@ private:
 	// Vertex Array Object
 	// Buffer de índices
 	GLuint ID;
-	GLuint VAO, VBO, EBO;
+	GLuint VAO, VBO; //, EBO;
 	//GLuint texture;
 	GLuint diffuseMap;
 	GLuint specularMap;
@@ -51,7 +58,13 @@ private:
 	int vertexCount;
 
 	// Nomes dos arquivos das texturas
-	const char* texFiles[4] {"default_tex.png", "brick.png", "pop_cat.png", "container_specular.png"};
+	const std::string texFiles[4] =
+	{
+		"default_tex.png",
+		"brick.png",
+		"pop_cat.png",
+		"container_specular.png"
+	};
 
 	void ConfigShader(const char* vertexFile, const char* fragmentFile);
 	void GenerateShader();
@@ -65,7 +78,4 @@ private:
 	void SetVec3(const std::string& name, float x, float y, float z) const;
 	void SetMat4(const std::string& name, const glm::mat4& mat) const;
 	glm::vec3 GetCorrectedRotation();
-
-	// Compila e indica erros de compilação
-	void CompileErrors(GLuint shader, const char* type);
 };

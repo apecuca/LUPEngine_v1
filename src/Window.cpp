@@ -43,9 +43,13 @@ void Window::InitWindow() {
 
 	// Profundidade
 	glEnable(GL_DEPTH_TEST);
-
+	// Keeps front faces
+	glCullFace(GL_FRONT);
+	// Uses counter clock-wise standard
+	glFrontFace(GL_CCW);
 	// Alpha blending
 	glEnable(GL_BLEND);
+
 	// Premultiplied alpha
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	// non-premultiplied alpha

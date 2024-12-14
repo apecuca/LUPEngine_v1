@@ -21,6 +21,8 @@
   <ItemGroup>
     <None Include="Shaders\default.frag" />
     <None Include="Shaders\default.vert" />
+    <None Include="Shaders\skybox.frag" />
+    <None Include="Shaders\skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
@@ -33,6 +35,7 @@
     <ClCompile Include="src\Shader.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp20</LanguageStandard>
     </ClCompile>
+    <ClCompile Include="src\Skybox.cpp" />
     <ClCompile Include="src\stb.cpp" />
     <ClCompile Include="src\Time.cpp" />
     <ClCompile Include="src\Window.cpp" />
@@ -45,6 +48,7 @@
     <ClInclude Include="src\Input.hpp" />
     <ClInclude Include="src\LUPEngine.hpp" />
     <ClInclude Include="src\Shader.hpp" />
+    <ClInclude Include="src\Skybox.hpp" />
     <ClInclude Include="src\Time.hpp" />
     <ClInclude Include="src\Window.hpp" />
   </ItemGroup>

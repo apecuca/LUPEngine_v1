@@ -4,8 +4,10 @@
 #include "Time.hpp"
 #include "Input.hpp"
 #include "Camera.hpp"
+#include "LUPEngine.hpp"
 
 #include "GLFW/glfw3.h"
+#include <glm/glm.hpp>
 
 int GameObject::nextCreationID = 0;
 
@@ -19,7 +21,7 @@ GameObject::GameObject() :
 
 void GameObject::InitShader()
 {
-	shader = std::make_unique<Shader>(*this);
+	shader = std::make_unique<Shader>(*this, glm::clamp(LUPEngine::GetObjectCount() - 1, 0, 2), 3);
 	SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	position = glm::vec3(0.0f, 0.0f, 0.0f);
 }

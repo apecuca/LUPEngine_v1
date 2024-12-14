@@ -14,21 +14,8 @@
 #include "LUPEngine.hpp"
 #include "Debug.hpp"
 
-std::string get_file_contents(const char* filename) {
-	std::ifstream in(filename, std::ios::binary);
-	if (in) {
-		std::string contents;
-		in.seekg(0, std::ios::end);
-		contents.resize(in.tellg());
-		in.seekg(0, std::ios::beg);
-		in.read(&contents[0], contents.size());
-		in.close();
-		return(contents);
-	}
-	throw(errno);
-}
-
-Shader::Shader(const GameObject& parent, const char* vertexFile, const char* fragmentFile) : 
+Shader::Shader(const GameObject& parent, const int diffuseMapIndex, const int specularMapIndex,
+	const char* vertexFile, const char* fragmentFile) :
 	gameObject { parent }
 {
 	// Configurar as variáveis do Shader
@@ -63,15 +50,16 @@ Shader::Shader(const GameObject& parent, const char* vertexFile, const char* fra
 	SetMat4("model", modelMat);
 
 	// Light data
-	SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-	SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-	SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+	glm::vec3 sunlightColor = glm::vec3(1.0f, 0.9568627f, 0.8392157f);
+	SetVec3("light.ambient", sunlightColor);
+	SetFloat("light.ambientStrength", 0.5f);
+	SetVec3("light.diffuse", sunlightColor * glm::vec3(0.85f));
+	SetVec3("light.specular", sunlightColor);
 
 	// Material data
-	SetVec3("material.ambient", 0.15f, 0.15f, 0.15f);
-	GenerateTexture(&diffuseMap, glm::clamp(LUPEngine::GetObjectCount() - 1, 0, 2),
+	GenerateTexture(&diffuseMap, diffuseMapIndex,
 		"material.diffuse", 0);
-	GenerateTexture(&specularMap, 3, "material.specular", 1);
+	GenerateTexture(&specularMap, specularMapIndex, "material.specular", 1);
 	SetFloat("material.shininess", 64.0f);
 }
 
@@ -90,39 +78,12 @@ Shader::~Shader()
 	// Buffers
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
+	//glDeleteBuffers(1, &EBO);
 	// Textura
 	glDeleteTextures(1, &diffuseMap);
 	glDeleteTextures(1, &specularMap);
 	// Programa (shader)
     glDeleteProgram(ID);
-}
-
-// Checks if the different Shaders have compiled properly
-void Shader::CompileErrors(GLuint shader, const char* type)
-{
-	// Stores status of compilation
-	GLint hasCompiled;
-	// Character array to store error message in
-	char infoLog[1024];
-	if (type != "PROGRAM")
-	{
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
-		if (hasCompiled == GL_FALSE)
-		{
-			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-			std::cout << "SHADER_COMPILATION_ERROR for:" << type << "\n" << infoLog << std::endl;
-		}
-	}
-	else
-	{
-		glGetProgramiv(shader, GL_LINK_STATUS, &hasCompiled);
-		if (hasCompiled == GL_FALSE)
-		{
-			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-			std::cout << "SHADER_LINKING_ERROR for:" << type << "\n" << infoLog << std::endl;
-		}
-	}
 }
 
 void Shader::Render()
@@ -155,8 +116,9 @@ void Shader::Render()
 	SetMat4("model", modelMat);
 
 	// Atualizar luz
-	SetVec3("light.position", glm::vec3(
-		sin(glfwGetTime()) * 10.0f, 5.0f, cos(glfwGetTime()) * 10.0f));
+	//SetVec3("light.position", glm::vec3(
+	//	sin(glfwGetTime()) * 10.0f, 5.0f, cos(glfwGetTime()) * 10.0f));
+	SetVec3("light.position", glm::vec3(5.0f, 5.0f, 10.0));
 	SetVec3("viewPos", Camera::GetInstance().position);
 
 	// Bind o VAO para ser o próximo a ser usado
@@ -223,7 +185,7 @@ void Shader::ConfigShader(const char* vertexFile, const char* fragmentFile)
 void Shader::GenerateShader()
 {
 	// Info das vertices
-	GLfloat vertices[] =
+	const GLfloat vertices[] =
 	{
 		// Posição				Normals					// Tex coords
 		-0.5f, -0.5f, -0.5f,	0.0f,  0.0f, -1.0f,		0.0, 0.0,
@@ -275,39 +237,34 @@ void Shader::GenerateShader()
 	// informações da mesh
 	vertexCount = static_cast<int>((sizeof(vertices) / sizeof(GLfloat)) / 2.66f);
 
-	// Gerar e bindar o VAO
+	// Gerar e bindar VAO
 	glGenVertexArrays(1, &VAO);
-	// Bindar o VAO, sinalizando que esse é o atual
 	glBindVertexArray(VAO);
 
-	// Gerar VBO
+	// Ordem de ação para VBO
+	// Bind VBO > Link VBO Attributes > Unbind VBO
+
+	// Gerar VBO e bindar VBO
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// Bind VBO > Link VBO Attributes > Unbind VBO
+	
 	// Linkar VBO com coordenadas
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Linkar VBO com coordenadas da textura
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Linkar VBO com normals
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(3);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Desbindar tudo
 	glBindVertexArray(0); // VAO
 	glBindBuffer(GL_ARRAY_BUFFER, 0); // VBO
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
 }
 
 void Shader::GenerateTexture(GLuint *texVar, int fileIndex, const std::string uniformName, int uniformLoc)
@@ -395,4 +352,45 @@ glm::vec3 Shader::GetCorrectedRotation()
 		-gameObject.rotation.x,
 		-gameObject.rotation.y,
 		gameObject.rotation.z);
+}
+
+std::string get_file_contents(const char* filename) {
+	std::ifstream in(filename, std::ios::binary);
+	if (in) {
+		std::string contents;
+		in.seekg(0, std::ios::end);
+		contents.resize(in.tellg());
+		in.seekg(0, std::ios::beg);
+		in.read(&contents[0], contents.size());
+		in.close();
+		return(contents);
+	}
+	throw(errno);
+}
+
+// Checks if the different Shaders have compiled properly
+void Shader::CompileErrors(GLuint shader, const char* type)
+{
+	// Stores status of compilation
+	GLint hasCompiled;
+	// Character array to store error message in
+	char infoLog[1024];
+	if (type != "PROGRAM")
+	{
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
+		if (hasCompiled == GL_FALSE)
+		{
+			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+			std::cout << "SHADER_COMPILATION_ERROR for:" << type << "\n" << infoLog << std::endl;
+		}
+	}
+	else
+	{
+		glGetProgramiv(shader, GL_LINK_STATUS, &hasCompiled);
+		if (hasCompiled == GL_FALSE)
+		{
+			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+			std::cout << "SHADER_LINKING_ERROR for:" << type << "\n" << infoLog << std::endl;
+		}
+	}
 }

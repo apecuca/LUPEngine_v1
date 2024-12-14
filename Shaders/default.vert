@@ -26,12 +26,13 @@ uniform mat4 projection;
 
 void main()
 {
-	// Outputs the positions/coordinates of all vertices
+	// Output de posição
+	// built in
 	gl_Position = projection * view * model * vec4(aPos, 1.0f);
-	// Assigns the colors from the Vertex Data to "color"
+	
+	// Outputs
 	//color = aColor;
 	color = vec3(1.0, 1.0, 1.0);
-	// Assigns the texture coordinates from the Vertex Data to "texCoord"
 	texCoord = aTexCoord;
 	fragPos = vec3(model * vec4(aPos, 1.0));
 	normals = aNormal;
