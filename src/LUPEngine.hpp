@@ -27,7 +27,7 @@ class LUPEngine
 		static inline int GetObjectCount() { return static_cast<int>(instantiatedObjs.size()); }
 
 		// Luz
-		static glm::vec3 lightSource;
+		//static glm::vec3 lightSource;
 
 	private:
 		// No futuro, trocar isso aqui pra um pointer

@@ -19,6 +19,12 @@ GameObject::GameObject() :
 	position = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
+GameObject::~GameObject()
+{
+	for (int i = static_cast<int>(components.size()) - 1; i >= 0; i--)
+		components.at(i).reset();
+}
+
 void GameObject::InitShader(const int diffuseMapIndex, const int specularMapIndex,
 	const char* vertexFile, const char* fragmentFile)
 {

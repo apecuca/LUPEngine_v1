@@ -66,6 +66,9 @@ private:
 		"container_specular.png"
 	};
 
+	// Luz legalzinha
+	glm::vec3 sunlightColor = glm::vec3(1.0f, 0.9568627f, 0.8392157f);
+
 	void ConfigShader(const char* vertexFile, const char* fragmentFile);
 	void GenerateShader();
 	// Pointer da variável que vai estar a textura

@@ -32,6 +32,7 @@
     <ClCompile Include="src\Debug.cpp" />
     <ClCompile Include="src\GameObject.cpp" />
     <ClCompile Include="src\Input.cpp" />
+    <ClCompile Include="src\Lighting.cpp" />
     <ClCompile Include="src\LUPEngine.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Shader.cpp">
@@ -48,6 +49,7 @@
     <ClInclude Include="src\Debug.hpp" />
     <ClInclude Include="src\GameObject.hpp" />
     <ClInclude Include="src\Input.hpp" />
+    <ClInclude Include="src\Lighting.hpp" />
     <ClInclude Include="src\LUPEngine.hpp" />
     <ClInclude Include="src\Shader.hpp" />
     <ClInclude Include="src\Skybox.hpp" />

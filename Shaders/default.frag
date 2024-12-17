@@ -17,6 +17,7 @@ struct DirLight
 // Point light (ponto)
 struct PointLight {    
     vec3 position;
+    float strength;
     
     float constant;
     float linear;
@@ -51,7 +52,8 @@ uniform vec3 viewPos;
 // Uniforms com info da luz e material
 //uniform Light light;
 uniform DirLight dirLight;
-uniform PointLight pointLight;
+#define POINT_LIGHT_COUNT 10
+uniform PointLight[POINT_LIGHT_COUNT] pointLights;
 uniform Material material;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 tex)
@@ -98,7 +100,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     diffuse  *= attenuation;
     specular *= attenuation;
 
-    return (ambient + diffuse + specular);
+    return ((ambient + diffuse + specular) * light.strength);
 } 
 
 void main()
@@ -119,7 +121,12 @@ void main()
     // phase 1: Directional lighting
     vec3 result = CalcDirLight(dirLight, norm, viewDir, mixedTexture);
     // phase 2: Point lights
-    result += CalcPointLight(pointLight, norm, fragPos, viewDir, mixedTexture);
+    for (int i = 0; i < POINT_LIGHT_COUNT; i++)
+    {
+        result += CalcPointLight(pointLights[i], norm, fragPos, viewDir, mixedTexture);   
+    }
+        
+    //result += CalcPointLight(pointLight, norm, fragPos, viewDir, mixedTexture);
     
     FragColor = vec4(result, 1.0);
 }

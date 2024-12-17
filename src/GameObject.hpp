@@ -7,13 +7,14 @@
 // LUPE classes
 #include "Shader.hpp"
 #include "Component.hpp"
+#include "Debug.hpp"
 
 class GameObject
 {
 public:
 	// Constructors padrão
 	GameObject();
-	~GameObject() = default;
+	virtual ~GameObject();
 
 	// Constructors de cópia
 	GameObject(const GameObject& other) : 
@@ -57,11 +58,32 @@ public:
 	void SetRotation(glm::vec3 angle, bool clamp);
 	void Rotate(glm::vec3 angle);
 
-	// Adiciona uma classe derivada de Component como um componente do objeto
-	template <class T> inline void AddComponent()
+	// Adiciona um componente ao gameobject e retorna um pointer do componente adicionado
+	template <class T> std::shared_ptr<T> AddComponent()
 	{
-		components.reserve(1);
-		components.push_back(std::make_unique<T>(*this));
+		if (components.size() - 1 >= components.capacity())
+		{
+			components.reserve(4);
+		}
+
+		std::shared_ptr<T> newComponent = std::make_shared<T>(*this);
+		components.push_back(newComponent);
+
+		return newComponent;
+	}
+
+	// Retorna um pointer do primeiro componente do tipo 
+	template <class T> auto GetComponent()
+	{
+		for (int i = 0; i < components.size(); i++)
+		{
+			if (typeid(T).name() != typeid(*components.at(i).get()).name())
+				continue;
+
+			return components.at(i);
+		}
+
+		throw std::invalid_argument("No available component");
 	}
 
 private:
@@ -76,7 +98,7 @@ private:
 	std::unique_ptr<Shader> shader;
 
 	// Components
-	std::vector<std::unique_ptr<Component>> components;
+	std::vector<std::shared_ptr<Component>> components;
 
 	void UpdateRotation(glm::vec3 lastOperation);
 };	

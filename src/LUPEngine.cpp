@@ -11,7 +11,7 @@
 
 // Inicializaçao das variáveis estáticas
 std::vector<GameObject> LUPEngine::instantiatedObjs;
-glm::vec3 LUPEngine::lightSource;
+//glm::vec3 LUPEngine::lightSource;
 
 LUPEngine::LUPEngine()
 {
@@ -28,12 +28,19 @@ LUPEngine::LUPEngine()
 		newObj.position = glm::vec3(-1.25f + (1.25 * i), 0.0f, 0.0f);
 	}
 
-	GameObject& lightCube = InstantiateObject();
-	lightCube.InitShader(0, 0, "Shaders/light_cube.vert", "Shaders/light_cube.frag");
-	lightCube.position = glm::vec3(0.0f, 1.0f, -3.0f);
-	lightCube.scale = glm::vec3(0.5f, 0.5f, 0.5f);
-	lightCube.AddComponent<Pointlight>();
-	lightSource = lightCube.position;
+	// light cube 1
+	GameObject& lightCube1 = InstantiateObject();
+	lightCube1.InitShader(0, 0, "Shaders/light_cube.vert", "Shaders/light_cube.frag");
+	lightCube1.scale = glm::vec3(0.5f, 0.5f, 0.5f);
+	lightCube1.AddComponent<Pointlight>()->dir = 1.0f;
+	Debug::Log(lightCube1.GetComponent<Pointlight>()->GetUniqueID());
+
+	// light cube 2
+	GameObject& lightCube2 = InstantiateObject();
+	lightCube2.InitShader(0, 0, "Shaders/light_cube.vert", "Shaders/light_cube.frag");
+	lightCube2.scale = glm::vec3(0.5f, 0.5f, 0.5f);
+	lightCube2.AddComponent<Pointlight>()->dir = -1.0f;
+	Debug::Log(lightCube2.GetComponent<Pointlight>()->GetUniqueID());
 
 	// Finish startup
 	Debug::Log("Engine succesfully started!");
@@ -103,3 +110,5 @@ void LUPEngine::DestroyObject(GameObject& obj)
 		instantiatedObjs.erase(instantiatedObjs.begin() + i);
 	}
 }
+
+// Luz

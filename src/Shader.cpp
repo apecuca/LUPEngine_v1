@@ -12,7 +12,8 @@
 // Classes da LUPEngine
 #include "Camera.hpp"
 #include "LUPEngine.hpp"
-#include "Debug.hpp"
+#include "Debug.hpp"		
+#include "Lighting.hpp"
 
 #include "Input.hpp"
 #include "Time.hpp"
@@ -52,24 +53,36 @@ Shader::Shader(const GameObject& parent, const int diffuseMapIndex, const int sp
 	SetMat4("projection", projecMat);
 	SetMat4("model", modelMat);
 
-	// Light data
-	glm::vec3 sunlightColor = glm::vec3(1.0f, 0.9568627f, 0.8392157f);
-
-	// Directional
+	// Directional light
 	SetVec3("dirLight.direction", glm::vec3(-1.0f, -0.5f, -1.0));
 	SetVec3("dirLight.ambient", sunlightColor);
-	SetFloat("dirLight.ambientStrength", 0.1f);
-	SetVec3("dirLight.diffuse", sunlightColor * glm::vec3(0.5f));
-	SetVec3("dirLight.specular", sunlightColor);
+	SetFloat("dirLight.ambientStrength", 0.0);
+	SetVec3("dirLight.diffuse", sunlightColor * glm::vec3(0.0f));
+	SetVec3("dirLight.specular", sunlightColor * glm::vec3(0.0f));
 
 	// Point light
-	SetFloat("pointLight.constant", 1.0f);
-	SetFloat("pointLight.linear", 0.22f);
-	SetFloat("pointLight.quadratic", 0.20f);
-	SetVec3("pointLight.ambient", sunlightColor);
-	SetFloat("pointLight.ambientStrength", 0.0f);
-	SetVec3("pointLight.diffuse", sunlightColor * glm::vec3(1.0f));
-	SetVec3("pointLight.specular", sunlightColor);
+	for (int i = 0; i < 10; i++)
+	{
+		std::string current = "pointLights[" + std::to_string(i) + "].";
+
+		SetFloat(current + "constant", 1.0f);
+		SetFloat(current + "linear", 0.22f);
+		SetFloat(current + "quadratic", 0.20f);
+
+		SetFloat(current + "strength", 0.0f);
+
+		SetVec3(current + "ambient", glm::vec3(0.0f));
+		SetFloat(current + "ambientStrength", 0.0f);
+		SetVec3(current + "diffuse", glm::vec3(0.0f));
+		SetVec3(current + "specular", glm::vec3(0.0f));
+	}
+	// SetFloat("pointLight.constant", 1.0f);
+	// SetFloat("pointLight.linear", 0.22f);
+	// SetFloat("pointLight.quadratic", 0.20f);
+	// SetVec3("pointLight.ambient", sunlightColor);
+	// SetFloat("pointLight.ambientStrength", 0.0f);
+	// SetVec3("pointLight.diffuse", sunlightColor * glm::vec3(1.0f));
+	// SetVec3("pointLight.specular", sunlightColor);
 
 	/* Point light distance values
 	Distance	Constant	Linear	Quadratic
@@ -144,9 +157,30 @@ void Shader::Render()
 	modelMat = glm::scale(modelMat, gameObject.scale);
 	SetMat4("model", modelMat);
 
-	// Atualizar luz
-	SetVec3("pointLight.position", LUPEngine::lightSource);
+	// Posição da câmera
 	SetVec3("viewPos", Camera::GetInstance().position);
+
+	// Point light
+	std::vector<glm::vec3> lightSources = Lighting::GetLightSources();
+	for (int i = 0; i < 10; i++)
+	{
+		std::string current = "pointLights[" + std::to_string(i) + "].";
+
+		if (i < lightSources.size())
+		{
+			SetVec3(current + "position", Lighting::GetLightSources().at(i));
+			SetFloat(current + "strength", 1.0f);
+
+			SetVec3(current + "ambient", sunlightColor);
+			SetFloat(current + "ambientStrength", 0.1f);
+			SetVec3(current + "diffuse", sunlightColor);
+			SetVec3(current + "specular", sunlightColor);
+		}
+		else
+		{
+			SetFloat(current + "strength", 0.0f);
+		}
+	}
 
 	// Bind o VAO para ser o próximo a ser usado
 	glBindVertexArray(VAO);
