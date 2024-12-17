@@ -5,7 +5,7 @@
 #include <sstream>
 
 // Load de imagens
-#include <stb/stb_image.h>
+#include "stb_image.h"
 
 // Matemática
 #include <glm/gtc/matrix_transform.hpp>

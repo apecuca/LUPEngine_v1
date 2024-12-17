@@ -1,13 +1,17 @@
 #include "LUPEngine.hpp"
 
+// Math
+#include "glm/glm.hpp"
+
+// LUPEngine 
 #include "Debug.hpp"
 #include "Time.hpp"
 #include "Input.hpp"
-#include "glm/glm.hpp"
 #include "Component.hpp"
 
 // Inicializaçao das variáveis estáticas
 std::vector<GameObject> LUPEngine::instantiatedObjs;
+glm::vec3 LUPEngine::lightSource;
 
 LUPEngine::LUPEngine()
 {
@@ -18,11 +22,17 @@ LUPEngine::LUPEngine()
 	for (int i = 0; i < 3; i++)
 	{
 		GameObject& newObj = InstantiateObject();
-		newObj.InitShader();
+		newObj.InitShader(glm::clamp(LUPEngine::GetObjectCount() - 1, 0, 2));
 		//newObj.scale = glm::vec3(0.2f);
 		//newObj.AddComponent<GenericComponent>();
 		newObj.position = glm::vec3(-1.25f + (1.25 * i), 0.0f, 0.0f);
 	}
+
+	GameObject& lightCube = InstantiateObject();
+	lightCube.InitShader(0, 0, "Shaders/light_cube.vert", "Shaders/light_cube.frag");
+	lightCube.position = glm::vec3(0.0f, 1.0f, -3.0f);
+	lightCube.AddComponent<Pointlight>();
+	lightSource = lightCube.position;
 
 	// Finish startup
 	Debug::Log("Engine succesfully started!");
@@ -31,8 +41,7 @@ LUPEngine::LUPEngine()
 LUPEngine::~LUPEngine()
 {
 	// Fazer finalizações aqui
-	// Basicamente, destruir pointers e 
-	// limpar arquivos temporários
+	// Basicamente, limpar arquivos temporários
 
 	Debug::Log("Bye bye ^w^");
 }
@@ -51,7 +60,7 @@ void LUPEngine::run()
 
 		// Renderizar Skybox
 		//skybox.Render();
-		piririm.Render();
+		skybox.Render();
 
 		// Inverter os buffers de vídeo
 		window.SwapBuffers();

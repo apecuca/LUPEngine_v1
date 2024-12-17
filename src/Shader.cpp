@@ -4,7 +4,7 @@
 #include <fstream>
 
 // Load de imagens
-#include <stb/stb_image.h>
+#include "stb_image.h"
 
 // Matemática
 #include <glm/gtc/matrix_transform.hpp>
@@ -51,16 +51,23 @@ Shader::Shader(const GameObject& parent, const int diffuseMapIndex, const int sp
 
 	// Light data
 	glm::vec3 sunlightColor = glm::vec3(1.0f, 0.9568627f, 0.8392157f);
+
 	SetVec3("light.ambient", sunlightColor);
-	SetFloat("light.ambientStrength", 0.5f);
-	SetVec3("light.diffuse", sunlightColor * glm::vec3(0.85f));
+	SetFloat("light.ambientStrength", 0.2f);
+	SetVec3("light.diffuse", sunlightColor * glm::vec3(0.5f));
 	SetVec3("light.specular", sunlightColor);
+	// Directional
+	SetVec3("light.directional", glm::vec3(-1.0f, -1.0f, -1.0));
+	// Point light
+	SetFloat("light.constant", 1.0f);
+	SetFloat("light.linear", 0.09f);
+	SetFloat("light.quadratic", 0.032f);
 
 	// Material data
 	GenerateTexture(&diffuseMap, diffuseMapIndex,
 		"material.diffuse", 0);
 	GenerateTexture(&specularMap, specularMapIndex, "material.specular", 1);
-	SetFloat("material.shininess", 64.0f);
+	SetFloat("material.shininess", 32.0f);
 }
 
 Shader::~Shader()
@@ -118,7 +125,7 @@ void Shader::Render()
 	// Atualizar luz
 	//SetVec3("light.position", glm::vec3(
 	//	sin(glfwGetTime()) * 10.0f, 5.0f, cos(glfwGetTime()) * 10.0f));
-	SetVec3("light.position", glm::vec3(5.0f, 5.0f, 10.0));
+	SetVec3("light.pointPos", LUPEngine::lightSource);
 	SetVec3("viewPos", Camera::GetInstance().position);
 
 	// Bind o VAO para ser o próximo a ser usado

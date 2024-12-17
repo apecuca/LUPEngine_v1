@@ -44,8 +44,10 @@ public:
 	glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	//
-	void InitShader();
+	void InitShader(const int diffuseMapIndex = 0,
+		const int specularMapIndex = 3,
+		const char* vertexFile = "Shaders/default.vert",
+		const char* fragmentFile = "Shaders/default.frag");
 
 	void UpdateBehaviour();
 	void Render();
@@ -56,7 +58,7 @@ public:
 	void Rotate(glm::vec3 angle);
 
 	// Adiciona uma classe derivada de Component como um componente do objeto
-	template <class T> void AddComponent()
+	template <class T> inline void AddComponent()
 	{
 		components.reserve(1);
 		components.push_back(std::make_unique<T>(*this));

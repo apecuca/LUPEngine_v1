@@ -15,15 +15,16 @@ GameObject::GameObject() :
 	uniqueID { nextCreationID }
 {
 	nextCreationID++;
-
-	//Debug::Log(Camera::WorldToScreenPoint(position));
-}
-
-void GameObject::InitShader()
-{
-	shader = std::make_unique<Shader>(*this, glm::clamp(LUPEngine::GetObjectCount() - 1, 0, 2), 3);
 	SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	position = glm::vec3(0.0f, 0.0f, 0.0f);
+}
+
+void GameObject::InitShader(const int diffuseMapIndex, const int specularMapIndex,
+	const char* vertexFile, const char* fragmentFile)
+{
+	shader = std::make_unique<Shader>(*this,
+		diffuseMapIndex, specularMapIndex,
+		vertexFile, fragmentFile);
 }
 
 void GameObject::UpdateBehaviour()

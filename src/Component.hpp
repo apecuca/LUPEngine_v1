@@ -30,3 +30,10 @@ public:
 	GenericComponent(GameObject& parent);
 	void Update() override;
 };
+
+class Pointlight : public Component
+{
+public:
+	Pointlight(GameObject& parent);
+	void Update() override;
+};

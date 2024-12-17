@@ -21,11 +21,11 @@ public:
 	Shader(
 		const GameObject& parent,
 
-		const int diffuseMapIndex = 0,
-		const int specularMapIndex = 0,
+		const int diffuseMapIndex,
+		const int specularMapIndex,
 
-		const char* vertexFile = "Shaders/default.vert",
-		const char* fragmentFile = "Shaders/default.frag"
+		const char* vertexFile,
+		const char* fragmentFile
 	);
 
 	// Destructor

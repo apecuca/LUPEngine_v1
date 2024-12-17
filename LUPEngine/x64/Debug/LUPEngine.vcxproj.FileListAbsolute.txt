@@ -1,2 +1,4 @@
 C:\Users\marco\Documents\dev\projects\LUPEngine\x64\Debug\glfw3.dll
 C:\Users\marco\Documents\dev\projects\LUPEngine\LUPEngine\x64\Debug\LUPEngine.vcxproj.Up2Date
+C:\Users\marco\Documents\dev\projects\LUPEngine_v1\x64\Debug\glfw3.dll
+C:\Users\marco\Documents\dev\projects\LUPEngine_v1\LUPEngine\x64\Debug\LUPEngine.vcxproj.Up2Date

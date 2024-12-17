@@ -26,6 +26,9 @@ class LUPEngine
 		static void DestroyObject(GameObject& obj);
 		static inline int GetObjectCount() { return static_cast<int>(instantiatedObjs.size()); }
 
+		// Luz
+		static glm::vec3 lightSource;
+
 	private:
 		// No futuro, trocar isso aqui pra um pointer
 		// e iniciar ela em um método Init, ou no construtor.
@@ -37,6 +40,5 @@ class LUPEngine
 
 		// Objetos para teste
 		Camera camObj;
-		//Skybox skybox;
-		Skybox piririm;
+		Skybox skybox;
 };

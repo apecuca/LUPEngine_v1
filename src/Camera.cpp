@@ -23,8 +23,9 @@ Camera::Camera() :
         delete this;
     }
 
-    GetInstance().position = glm::vec3(0.0f, 0.0f, -4.0f);
-    GetInstance().SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+    GetInstance().position = glm::vec3(0.0f, 0.0f, 4.0f);
+    GetInstance().SetRotation(glm::vec3(180.0f, 0.0f, 0.0f));
+    GetInstance().fov = 60.0f;
 }
 
 Camera& Camera::GetInstance()
@@ -36,8 +37,8 @@ void Camera::Update()
 {
     if (Input::GetKey(GLFW_KEY_R))
     {
-        GetInstance().position = glm::vec3(0.0f, 0.0f, -4.0f);
-        GetInstance().SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+        GetInstance().position = glm::vec3(0.0f, 0.0f, 4.0f);
+        GetInstance().SetRotation(glm::vec3(180.0f, 0.0f, 0.0f));
         fov = 60.0f;
     }
 
@@ -51,10 +52,12 @@ void Camera::Update()
             debugMovement ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     }
 
+    /*
     if (Input::GetKey(GLFW_KEY_DOWN))
         fov -= 20.0f * Time::deltaTime;
     if (Input::GetKey(GLFW_KEY_UP))
         fov += 20.0f * Time::deltaTime;
+    */
 
     if (debugMovement)
         DebugMovementHandler();
