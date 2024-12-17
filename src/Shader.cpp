@@ -14,6 +14,9 @@
 #include "LUPEngine.hpp"
 #include "Debug.hpp"
 
+#include "Input.hpp"
+#include "Time.hpp"
+
 Shader::Shader(const GameObject& parent, const int diffuseMapIndex, const int specularMapIndex,
 	const char* vertexFile, const char* fragmentFile) :
 	gameObject { parent }
@@ -52,16 +55,37 @@ Shader::Shader(const GameObject& parent, const int diffuseMapIndex, const int sp
 	// Light data
 	glm::vec3 sunlightColor = glm::vec3(1.0f, 0.9568627f, 0.8392157f);
 
-	SetVec3("light.ambient", sunlightColor);
-	SetFloat("light.ambientStrength", 0.2f);
-	SetVec3("light.diffuse", sunlightColor * glm::vec3(0.5f));
-	SetVec3("light.specular", sunlightColor);
 	// Directional
-	SetVec3("light.directional", glm::vec3(-1.0f, -1.0f, -1.0));
+	SetVec3("dirLight.direction", glm::vec3(-1.0f, -0.5f, -1.0));
+	SetVec3("dirLight.ambient", sunlightColor);
+	SetFloat("dirLight.ambientStrength", 0.1f);
+	SetVec3("dirLight.diffuse", sunlightColor * glm::vec3(0.5f));
+	SetVec3("dirLight.specular", sunlightColor);
+
 	// Point light
-	SetFloat("light.constant", 1.0f);
-	SetFloat("light.linear", 0.09f);
-	SetFloat("light.quadratic", 0.032f);
+	SetFloat("pointLight.constant", 1.0f);
+	SetFloat("pointLight.linear", 0.22f);
+	SetFloat("pointLight.quadratic", 0.20f);
+	SetVec3("pointLight.ambient", sunlightColor);
+	SetFloat("pointLight.ambientStrength", 0.0f);
+	SetVec3("pointLight.diffuse", sunlightColor * glm::vec3(1.0f));
+	SetVec3("pointLight.specular", sunlightColor);
+
+	/* Point light distance values
+	Distance	Constant	Linear	Quadratic
+	7			1.0			0.7		1.8
+	13			1.0			0.35	0.44
+	20			1.0			0.22	0.20
+	32			1.0			0.14	0.07
+	50			1.0			0.09	0.032
+	65			1.0			0.07	0.017
+	100			1.0			0.045	0.0075
+	160			1.0			0.027	0.0028
+	200			1.0			0.022	0.0019
+	325			1.0			0.014	0.0007
+	600			1.0			0.007	0.0002
+	3250		1.0			0.0014	0.000007
+	*/
 
 	// Material data
 	GenerateTexture(&diffuseMap, diffuseMapIndex,
@@ -108,7 +132,7 @@ void Shader::Render()
 	viewMat = Camera::GetInstance().GetViewMatrix();
 	SetMat4("view", viewMat);
 	
-	// Aplicar transforms na matriz de modelo
+	// Matriz de modelo
 	modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, gameObject.position);
 	if (glm::length(gameObject.rotation) != 0)
@@ -118,14 +142,10 @@ void Shader::Render()
 			glm::normalize(GetCorrectedRotation()));
 	}
 	modelMat = glm::scale(modelMat, gameObject.scale);
-
-	// Atualizar matriz de modelo
 	SetMat4("model", modelMat);
 
 	// Atualizar luz
-	//SetVec3("light.position", glm::vec3(
-	//	sin(glfwGetTime()) * 10.0f, 5.0f, cos(glfwGetTime()) * 10.0f));
-	SetVec3("light.pointPos", LUPEngine::lightSource);
+	SetVec3("pointLight.position", LUPEngine::lightSource);
 	SetVec3("viewPos", Camera::GetInstance().position);
 
 	// Bind o VAO para ser o próximo a ser usado

@@ -31,6 +31,7 @@ LUPEngine::LUPEngine()
 	GameObject& lightCube = InstantiateObject();
 	lightCube.InitShader(0, 0, "Shaders/light_cube.vert", "Shaders/light_cube.frag");
 	lightCube.position = glm::vec3(0.0f, 1.0f, -3.0f);
+	lightCube.scale = glm::vec3(0.5f, 0.5f, 0.5f);
 	lightCube.AddComponent<Pointlight>();
 	lightSource = lightCube.position;
 

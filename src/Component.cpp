@@ -44,14 +44,14 @@ Pointlight::Pointlight(GameObject& parent) :
 
 void Pointlight::Update()
 {
-	LUPEngine::lightSource = gameObject.position;
 	// Behaviour example
-	// gameObject.rotation += glm::vec3(1.0f) * 45.0f * Time::deltaTime;
 
-	float moveSpeed = 5.0f * Time::deltaTime;
+	float moveSpeed = 3.25f * Time::deltaTime;
 
 	if (Input::GetKey(GLFW_KEY_RIGHT)) gameObject.position += glm::vec3(moveSpeed, 0, 0);
 	if (Input::GetKey(GLFW_KEY_LEFT)) gameObject.position += glm::vec3(-moveSpeed, 0, 0);
 	if (Input::GetKey(GLFW_KEY_UP)) gameObject.position += glm::vec3(0, 0, -moveSpeed);
 	if (Input::GetKey(GLFW_KEY_DOWN)) gameObject.position += glm::vec3(0, 0, moveSpeed);
+
+	LUPEngine::lightSource = gameObject.position;
 }
