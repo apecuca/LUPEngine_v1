@@ -26,4 +26,7 @@ class Window {
 
 		std::string windowName;
 		GLFWwindow* windowPtr;
+
+		// callbacks
+		static void callback_windowResize(GLFWwindow* window, int width, int height);
 };

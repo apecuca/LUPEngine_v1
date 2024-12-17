@@ -1,6 +1,7 @@
 #include "Window.hpp"
-#include "Debug.hpp"
 
+#include "LUPEngine.hpp"
+#include "Debug.hpp"
 #include "Input.hpp"
 
 // constructor
@@ -27,7 +28,7 @@ void Window::InitWindow() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Configs extras
-	glfwWindowHint(GLFW_RESIZABLE, false);
+	//glfwWindowHint(GLFW_RESIZABLE, false);
 
 	// Inicia a variável window com a criação de uma janela glfw
 	windowPtr = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
@@ -54,6 +55,9 @@ void Window::InitWindow() {
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	// non-premultiplied alpha
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Callbacks
+	glfwSetWindowSizeCallback(windowPtr, callback_windowResize);
 }
 
 void Window::ClearWindow()
@@ -69,4 +73,14 @@ void Window::SwapBuffers()
 	// Inverte os buffers de vídeo
 	// (trás vai pra frente)
 	glfwSwapBuffers(windowPtr);
+}
+
+void Window::callback_windowResize(GLFWwindow* window, int width, int height)
+{
+	// Atualizar variável de tamanho
+	LUPEngine::HEIGHT = height;
+	LUPEngine::WIDTH = width;
+
+	// Atualizar viewport
+	glViewport(0, 0, width, height);
 }

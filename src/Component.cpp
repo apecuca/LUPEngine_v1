@@ -58,10 +58,15 @@ void Pointlight::Update()
 {
 	// Behaviour example
 
+	if (Input::GetKey(GLFW_KEY_DOWN))
+		floatDist -= 0.75f * Time::deltaTime;
+	if (Input::GetKey(GLFW_KEY_UP))
+		floatDist += 0.75f * Time::deltaTime;
+
 	gameObject.position = glm::vec3(
-		sin(glfwGetTime()) * 2.0f * dir,
-		sin(glfwGetTime()) * 2.0f * dir,
-		cos(glfwGetTime()) * 2.0f * dir);
+		sin(glfwGetTime()) * floatDist * dir,
+		sin(glfwGetTime()) * floatDist * dir,
+		cos(glfwGetTime()) * floatDist * dir);
 
 	/*
 	float moveSpeed = 3.25f * Time::deltaTime;

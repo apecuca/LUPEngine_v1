@@ -55,6 +55,7 @@ public:
 	~Pointlight();
 
 	float dir = 0.0f;
+	float floatDist = 2.0f;
 
 	void Update() override;
 };

@@ -76,13 +76,6 @@ Shader::Shader(const GameObject& parent, const int diffuseMapIndex, const int sp
 		SetVec3(current + "diffuse", glm::vec3(0.0f));
 		SetVec3(current + "specular", glm::vec3(0.0f));
 	}
-	// SetFloat("pointLight.constant", 1.0f);
-	// SetFloat("pointLight.linear", 0.22f);
-	// SetFloat("pointLight.quadratic", 0.20f);
-	// SetVec3("pointLight.ambient", sunlightColor);
-	// SetFloat("pointLight.ambientStrength", 0.0f);
-	// SetVec3("pointLight.diffuse", sunlightColor * glm::vec3(1.0f));
-	// SetVec3("pointLight.specular", sunlightColor);
 
 	/* Point light distance values
 	Distance	Constant	Linear	Quadratic
@@ -101,9 +94,20 @@ Shader::Shader(const GameObject& parent, const int diffuseMapIndex, const int sp
 	*/
 
 	// Material data
-	GenerateTexture(&diffuseMap, diffuseMapIndex,
-		"material.diffuse", 0);
-	GenerateTexture(&specularMap, specularMapIndex, "material.specular", 1);
+	// Diffuse texture
+	if (diffuseMapIndex >= 0 && diffuseMapIndex < texFiles->length() - 1)
+	{
+		GenerateTexture(&diffuseMap, diffuseMapIndex,
+			"material.diffuse", 0);
+	}
+
+	// Specular texture
+	if (specularMapIndex >= 0 && specularMapIndex < texFiles->length() - 1)
+	{
+		GenerateTexture(&specularMap, specularMapIndex, "material.specular", 1);
+	}
+	
+	// Material
 	SetFloat("material.shininess", 32.0f);
 }
 
