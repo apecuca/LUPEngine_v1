@@ -9,9 +9,11 @@ struct DirLight
     vec3 direction;
   
     vec3 ambient;
-    float ambientStrength;
     vec3 diffuse;
     vec3 specular;
+
+    float ambientStrength;
+    float directionalStrength;
 };
 
 // Point light (ponto)
@@ -68,9 +70,13 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 tex)
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 
     // combine results
-    vec3 ambient  = light.ambient * light.ambientStrength * tex;
+    vec3 ambient  = light.ambient * tex;
     vec3 diffuse  = light.diffuse  * diff * tex;
     vec3 specular = light.specular * spec * texture(material.specular, texCoord).rgb;
+
+    ambient *= light.ambientStrength;
+    diffuse *= light.directionalStrength;
+    specular *= light.directionalStrength;
 
     return (ambient + diffuse + specular);
 } 
@@ -125,66 +131,6 @@ void main()
     {
         result += CalcPointLight(pointLights[i], norm, fragPos, viewDir, mixedTexture);   
     }
-        
-    //result += CalcPointLight(pointLight, norm, fragPos, viewDir, mixedTexture);
     
     FragColor = vec4(result, 1.0);
 }
-
-/*
-struct Light {
-    vec3 pointPos;
-
-    vec3 directional;
-
-    vec3 ambient;
-    float ambientStrength;
-    vec3 diffuse;
-    vec3 specular;
-
-    float constant;
-    float linear;
-    float quadratic;
-};
-*/
-
-/*
-void main()
-{
-    // Textura principal
-    // Essa junção só tá aqui por enquanto pra 
-    // aprender a usar o alpha channel
-    vec4 backTex = texture(material.diffuse, texCoord);
-    vec4 frontTex = texture(material.specular, texCoord);
-    vec3 mixedTexture = (frontTex * frontTex.a + backTex * (1 - frontTex.a)).xyz;
-    // Colorizar textura
-    mixedTexture *= color;
-
-    // ambient
-    vec3 ambient = mixedTexture * light.ambient * light.ambientStrength;
-  	
-    // diffuse 
-    vec3 norm = normalize(normals);
-    //vec3 lightDir = normalize(light.position - fragPos);
-    vec3 lightDir = normalize(light.pointPos - fragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * mixedTexture;  
-    
-    // specular
-    vec3 viewDir = normalize(viewPos - fragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);  
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = light.specular * spec * texture(material.specular, texCoord).rgb;
-
-    // attenuation
-    float distance = length(light.pointPos - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
-
-    ambient *= attenuation;  
-    diffuse *= attenuation;
-    specular *= attenuation;
-        
-    // final
-    FragColor = vec4(ambient + diffuse + specular, 1.0);
-}
-*/

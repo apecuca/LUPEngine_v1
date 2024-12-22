@@ -54,27 +54,29 @@ Shader::Shader(const GameObject& parent, const int diffuseMapIndex, const int sp
 	SetMat4("model", modelMat);
 
 	// Directional light
-	SetVec3("dirLight.direction", glm::vec3(-1.0f, -0.5f, -1.0));
-	SetVec3("dirLight.ambient", sunlightColor);
-	SetFloat("dirLight.ambientStrength", 0.0);
-	SetVec3("dirLight.diffuse", sunlightColor * glm::vec3(0.0f));
-	SetVec3("dirLight.specular", sunlightColor * glm::vec3(0.0f));
+	SetVec3("dirLight.direction", Lighting::directional);
+	SetVec3("dirLight.ambient", Lighting::ambient);
+	SetVec3("dirLight.diffuse", Lighting::diffuse);
+	SetVec3("dirLight.specular", Lighting::specular);
+
+	SetFloat("dirLight.ambientStrength", Lighting::ambientStrength);
+	SetFloat("dirLight.directionalStrength", Lighting::dirStrength);
 
 	// Point light
 	for (int i = 0; i < 10; i++)
 	{
 		std::string current = "pointLights[" + std::to_string(i) + "].";
 
+		SetFloat(current + "strength", 0.0f);
+
 		SetFloat(current + "constant", 1.0f);
 		SetFloat(current + "linear", 0.22f);
 		SetFloat(current + "quadratic", 0.20f);
 
-		SetFloat(current + "strength", 0.0f);
-
-		SetVec3(current + "ambient", glm::vec3(0.0f));
-		SetFloat(current + "ambientStrength", 0.0f);
-		SetVec3(current + "diffuse", glm::vec3(0.0f));
-		SetVec3(current + "specular", glm::vec3(0.0f));
+		SetVec3(current + "ambient", Lighting::ambient);
+		SetFloat(current + "ambientStrength", 0.2f);
+		SetVec3(current + "diffuse", Lighting::diffuse);
+		SetVec3(current + "specular", Lighting::specular);
 	}
 
 	/* Point light distance values
@@ -174,11 +176,6 @@ void Shader::Render()
 		{
 			SetVec3(current + "position", Lighting::GetLightSources().at(i));
 			SetFloat(current + "strength", 1.0f);
-
-			SetVec3(current + "ambient", sunlightColor);
-			SetFloat(current + "ambientStrength", 0.1f);
-			SetVec3(current + "diffuse", sunlightColor);
-			SetVec3(current + "specular", sunlightColor);
 		}
 		else
 		{

@@ -35,12 +35,6 @@ LUPEngine::LUPEngine() :
 	lightCube1.scale = glm::vec3(0.5f, 0.5f, 0.5f);
 	lightCube1.AddComponent<Pointlight>()->dir = 1.0f;
 
-	// light cube 2
-	GameObject& lightCube2 = InstantiateObject();
-	lightCube2.InitShader(-1, -1, "Shaders/light_cube.vert", "Shaders/light_cube.frag");
-	lightCube2.scale = glm::vec3(0.5f, 0.5f, 0.5f);
-	lightCube2.AddComponent<Pointlight>()->dir = -1.0f;
-
 	// Finish startup
 	Debug::Log("Engine succesfully started!");
 }
@@ -66,7 +60,6 @@ void LUPEngine::run()
 		}
 
 		// Renderizar Skybox
-		//skybox.Render();
 		skybox.Render();
 
 		// Inverter os buffers de vídeo
