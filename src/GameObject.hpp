@@ -4,8 +4,11 @@
 #include <vector>
 #include <iostream>
 
+// Math and openGL
+#include "glm/glm.hpp"
+#include "glad/glad.h"
+
 // LUPE classes
-#include "Shader.hpp"
 #include "Component.hpp"
 #include "Debug.hpp"
 
@@ -45,13 +48,7 @@ public:
 	glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	void InitShader(const int diffuseMapIndex = 0,
-		const int specularMapIndex = 3,
-		const char* vertexFile = "Shaders/default.vert",
-		const char* fragmentFile = "Shaders/default.frag");
-
 	void UpdateBehaviour();
-	void Render();
 
 	// Rotação
 	void SetRotation(glm::vec3 angle);
@@ -93,9 +90,6 @@ private:
 
 	//
 	glm::vec3 lastRotation = glm::vec3(0.f);
-
-	// Renderização
-	std::unique_ptr<Shader> shader;
 
 	// Components
 	std::vector<std::shared_ptr<Component>> components;

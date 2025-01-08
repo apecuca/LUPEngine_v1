@@ -8,6 +8,9 @@
 #include "GameObject.hpp"
 #include "Camera.hpp"
 #include "Skybox.hpp"
+#include "RenderSource.hpp"
+
+class RenderSource;
 
 class LUPEngine
 {
@@ -24,15 +27,22 @@ class LUPEngine
 		LUPEngine();
 		~LUPEngine();
 
+		// Thread principal
 		void run();
 
 		// Gerenciamento de objetos
+		// Instancia um objeto vazio
 		static GameObject& InstantiateObject();
+		// Destrói um objeto referenciado
 		static void DestroyObject(GameObject& obj);
+		// Retorna a quantidade de objetos instanciados
 		static inline int GetObjectCount() { return static_cast<int>(instantiatedObjs.size()); }
 
-		// Luz
-		//static glm::vec3 lightSource;
+		// Renderização
+		// Adiciona uma nova fonte de renderização
+		static void AddRenderSource(RenderSource& source);
+		// Remove uma fonte de renderização
+		static void RemoveRenderSource(RenderSource& source);
 
 	private:
 		// No futuro, trocar isso aqui pra um pointer
@@ -43,6 +53,9 @@ class LUPEngine
 
 		// Lista de objetos instancidos
 		static std::vector<GameObject> instantiatedObjs;
+
+		// Lista de renderers
+		static std::vector <std::reference_wrapper<RenderSource>> renderSources;
 
 		// Objetos para teste
 		Camera camObj;

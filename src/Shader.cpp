@@ -74,7 +74,7 @@ Shader::Shader(const GameObject& parent, const int diffuseMapIndex, const int sp
 		SetFloat(current + "quadratic", 0.20f);
 
 		SetVec3(current + "ambient", Lighting::ambient);
-		SetFloat(current + "ambientStrength", 0.2f);
+		SetFloat(current + "ambientStrength", Lighting::ambientStrength);
 		SetVec3(current + "diffuse", Lighting::diffuse);
 		SetVec3(current + "specular", Lighting::specular);
 	}
@@ -338,9 +338,7 @@ void Shader::GenerateTexture(GLuint *texVar, int fileIndex, const std::string un
 	glGenTextures(1, texVar);
 
 	// load and generate the texture
-	stbi_set_flip_vertically_on_load(true);
 	int width, height, nrChannels;
-
 	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
 	// Error handling
 	if (data)

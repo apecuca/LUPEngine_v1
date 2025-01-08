@@ -25,14 +25,6 @@ GameObject::~GameObject()
 		components.at(i).reset();
 }
 
-void GameObject::InitShader(const int diffuseMapIndex, const int specularMapIndex,
-	const char* vertexFile, const char* fragmentFile)
-{
-	shader = std::make_unique<Shader>(*this,
-		diffuseMapIndex, specularMapIndex,
-		vertexFile, fragmentFile);
-}
-
 void GameObject::UpdateBehaviour()
 {
 	//Rotate(glm::vec3(0.0f, 25.0f, 0.0f) * Time::deltaTime);
@@ -41,13 +33,6 @@ void GameObject::UpdateBehaviour()
 		components.at(i)->Update();
 		//components.at(i)->Create();
 	}
-}
-
-void GameObject::Render()
-{
-	if (shader == nullptr) return;
-
-	shader->Render();
 }
 
 void GameObject::Rotate(glm::vec3 angle)

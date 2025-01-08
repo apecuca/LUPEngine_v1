@@ -18,4 +18,6 @@ public:
 
 private:
 	Debug();
+
+	static void PrintTime();
 };

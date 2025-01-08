@@ -3,6 +3,9 @@
 // Math
 #include "glm/glm.hpp"
 
+// Imagem
+#include "stb_image.h"
+
 // LUPEngine 
 #include "Debug.hpp"
 #include "Time.hpp"
@@ -13,27 +16,31 @@
 int LUPEngine::WIDTH = 800;
 int LUPEngine::HEIGHT = 800;
 std::vector<GameObject> LUPEngine::instantiatedObjs;
+std::vector <std::reference_wrapper<RenderSource>> LUPEngine::renderSources;
 
 LUPEngine::LUPEngine() : 
 	window { std::make_unique<Window>(WIDTH, HEIGHT, "LUPEngine example") }
 {
 	// Inicialização
 	Input::InitInput(window->getWindowPtr());
+	stbi_set_flip_vertically_on_load(false);
 
 	// Instanciar objetos
-	for (int i = 0; i < 3; i++)
-	{
-		GameObject& newObj = InstantiateObject();
-		newObj.InitShader(glm::clamp(LUPEngine::GetObjectCount() - 1, 0, 2));
-		//newObj.scale = glm::vec3(0.2f);
-		newObj.position = glm::vec3(-1.25f + (1.25 * i), 0.0f, 0.0f);
-	}
+	GameObject& newObj2 = InstantiateObject();
+	newObj2.position = glm::vec3(0.0f, -0.5f, 0.0f);
+	newObj2.scale = glm::vec3(1.0f);
+	newObj2.AddComponent<RenderSource>()->ConfigShader(
+		"default.vert", "default.frag", "Skeleton/skeleton.gltf");
 
+	/*
 	// light cube 1
 	GameObject& lightCube1 = InstantiateObject();
-	lightCube1.InitShader(-1, -1, "Shaders/light_cube.vert", "Shaders/light_cube.frag");
-	lightCube1.scale = glm::vec3(0.5f, 0.5f, 0.5f);
+	lightCube1.scale = glm::vec3(0.5f);
+	lightCube1.AddComponent<RenderSource>()->ConfigShader(
+		"light_cube.vert", "light_cube.frag", "cube.fbx"
+	);
 	lightCube1.AddComponent<Pointlight>()->dir = 1.0f;
+	*/
 
 	// Finish startup
 	Debug::Log("Engine succesfully started!");
@@ -53,10 +60,12 @@ void LUPEngine::run()
 		// Limpar fundo
 		window->ClearWindow();
 
-		// Renderizar gameobjs instanciados
-		for (int i = 0; i < instantiatedObjs.size(); i++)
+		// Desenhar fontes de renderização
+		for (int i = 0; i < renderSources.size(); i++)
 		{
-			instantiatedObjs.at(i).Render();
+			if (!renderSources.at(i).get().enabled) continue;
+
+			renderSources.at(i).get().Draw();
 		}
 
 		// Renderizar Skybox
@@ -103,4 +112,18 @@ void LUPEngine::DestroyObject(GameObject& obj)
 	}
 }
 
-// Luz
+void LUPEngine::AddRenderSource(RenderSource& source)
+{
+	renderSources.emplace_back(source);
+}
+
+void LUPEngine::RemoveRenderSource(RenderSource& source)
+{
+	for (int i = 0; i < renderSources.size(); i++)
+	{
+		if (renderSources.at(i) != source)
+			continue;
+
+		renderSources.erase(renderSources.begin() + i);
+	}
+}

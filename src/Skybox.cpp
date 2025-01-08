@@ -12,7 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Classes LUPEngine
-#include "Shader.hpp"
+#include "RenderSource.hpp"
 #include "Camera.hpp"
 #include "LUPEngine.hpp"
 
@@ -128,20 +128,20 @@ void Skybox::ConfigSkybox()
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
-    Shader::CompileErrors(vertex, "VERTEX");
+    RenderSource::CheckCompileErrors(vertex, "VERTEX");
 
     // fragment Shader
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
-    Shader::CompileErrors(fragment, "FRAGMENT");
+    RenderSource::CheckCompileErrors(fragment, "FRAGMENT");
 
     // shader Program
     ID = glCreateProgram();
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
     glLinkProgram(ID);
-    Shader::CompileErrors(ID, "PROGRAM");
+    RenderSource::CheckCompileErrors(ID, "PROGRAM");
 
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);

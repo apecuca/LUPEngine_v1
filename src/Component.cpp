@@ -13,7 +13,8 @@ int Component::nextCreationID = 0;
 
 Component::Component(GameObject& parent) :
 	gameObject {parent},
-	uniqueID {nextCreationID}
+	uniqueID {nextCreationID},
+	enabled {true}
 {
 	// UniqueID handling
 	nextCreationID++;
