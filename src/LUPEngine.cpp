@@ -31,7 +31,7 @@ LUPEngine::LUPEngine() :
 	newObj2.scale = glm::vec3(1.0f);
 	newObj2.AddComponent<RenderSource>()->ConfigShader(
 		"default.vert", "default.frag", "Quirky animals/animals.gltf");
-		//"default.vert", "default.frag", "skeletonEmbedded.glb");
+		//"default.vert", "default.frag", "Skeleton/skeletonEmbedded.fbx");
 		//"default.vert", "default.frag", "cube.fbx");
 
 	// light cube 1

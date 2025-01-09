@@ -160,22 +160,22 @@ Model::MeshData Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     {
         // 1. diffuse maps
         std::vector<Texture> diffuseMaps = LoadMaterialTextures(
-            material, aiTextureType_DIFFUSE, "texture_diffuse");
+            material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
         newMesh.textures.insert(newMesh.textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
         // 2. specular maps
         std::vector<Texture> specularMaps = LoadMaterialTextures(
-            material, aiTextureType_SPECULAR, "texture_specular");
+            material, aiTextureType_SPECULAR, "texture_specular", scene);
         newMesh.textures.insert(newMesh.textures.end(), specularMaps.begin(), specularMaps.end());
 
         // 3. normal maps
         std::vector<Texture> normalMaps = LoadMaterialTextures(
-            material, aiTextureType_HEIGHT, "texture_normal");
+            material, aiTextureType_HEIGHT, "texture_normal", scene);
         newMesh.textures.insert(newMesh.textures.end(), normalMaps.begin(), normalMaps.end());
 
         // 4. height maps
         std::vector<Texture> heightMaps = LoadMaterialTextures(
-            material, aiTextureType_AMBIENT, "texture_height");
+            material, aiTextureType_AMBIENT, "texture_height", scene);
         newMesh.textures.insert(newMesh.textures.end(), heightMaps.begin(), heightMaps.end());
     }
     else
@@ -195,7 +195,8 @@ Model::MeshData Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
 // the required info is returned as a Texture struct.
-std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<Texture> Model::LoadMaterialTextures(
+    aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene)
 {
     std::vector<Texture> textures;
     for (int i = 0; i < mat->GetTextureCount(type); i++)
@@ -218,14 +219,13 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
             Texture texture;
             
             // Embedded texture warning
-            if (str.data[0] == '*')
+            auto embeddedTex = scene->GetEmbeddedTexture(str.C_Str());
+            if (embeddedTex)
             {
-                std::string errMsg = "Embedded textures are not supported. Material name: ";
-                errMsg += mat->GetName().C_Str();
-                Debug::Log(errMsg);
+                texture.id = EmbeddedTexture(embeddedTex->pcData, embeddedTex->mWidth);
             }
-
-            texture.id = TextureFromFile(str.C_Str(), this->directory);
+            else
+                texture.id = TextureFromFile(str.C_Str(), this->directory);
             texture.type = typeName;
             texture.path = str.C_Str();
             textures.push_back(texture);
@@ -243,6 +243,12 @@ GLuint TextureFromFile(const char* path, const std::string& directory, bool gamm
 
     GLuint textureID;
     glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int width, height, nrComponents;
     unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
@@ -255,26 +261,64 @@ GLuint TextureFromFile(const char* path, const std::string& directory, bool gamm
             format = GL_RGB;
         else if (nrComponents == 4)
             format = GL_RGBA;
+        else Debug::Log("Unsupported format type");
 
-        glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        // Unbind textura
-        glBindTexture(GL_TEXTURE_2D, 0);
     }
     else
     {
         std::cout << "Texture failed to load at path: " << filename << std::endl;
     }
 
+    // Unbind textura
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     // Free space
     stbi_image_free(data);
 
     return textureID;
+}
+
+GLuint EmbeddedTexture(void* pData, int bufferSize)
+{
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    // Set texture wrapping and filtering options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Load texture image and generate mipmaps
+    int width, height, channels;
+    unsigned char* data = stbi_load_from_memory((const stbi_uc*)pData, bufferSize, &width, &height, &channels, 0);
+    if (data) {
+        GLenum format = GL_RGB;
+        if (channels == 1)
+            format = GL_RED;
+        else if (channels == 3)
+            format = GL_RGB;
+        else if (channels == 4)
+            format = GL_RGBA;
+        else Debug::Log("Unsupported format type");
+
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cerr << "Failed to load texture from memory." << std::endl;
+        return 0; // Return 0 to indicate failure
+    }
+
+    // Unbind texture
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Free image data
+    stbi_image_free(data);
+
+    return textureID;
+
 }

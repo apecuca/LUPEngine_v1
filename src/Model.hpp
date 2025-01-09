@@ -8,6 +8,7 @@
 #include <assimp/postprocess.h>
 
 GLuint TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
+GLuint EmbeddedTexture(void* pData, int bufferSize);
 
 class Model
 {
@@ -41,7 +42,8 @@ private:
     void LoadModel(std::string const& path);
     void ProcessNode(aiNode* node, const aiScene* scene);
     MeshData ProcessMesh(aiMesh* mesh, const aiScene* scene);
-    std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+    std::vector<Texture> LoadMaterialTextures(
+        aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene);
 
     GLuint& shader;
 };
