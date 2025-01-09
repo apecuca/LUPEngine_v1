@@ -27,11 +27,9 @@ GameObject::~GameObject()
 
 void GameObject::UpdateBehaviour()
 {
-	//Rotate(glm::vec3(0.0f, 25.0f, 0.0f) * Time::deltaTime);
 	for (int i = 0; i < components.size(); i++)
 	{
 		components.at(i)->Update();
-		//components.at(i)->Create();
 	}
 }
 

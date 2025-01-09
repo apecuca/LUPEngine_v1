@@ -38,6 +38,7 @@ struct Material {
 
     bool hasSpecular;
 
+    vec4 color;
     float shininess;
 }; 
 
@@ -75,9 +76,9 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     //vec3 ambient  = light.ambient * texture(material.diffuse, texCoord).rgb;
     //vec3 diffuse  = light.diffuse  * diff * texture(material.diffuse, texCoord).rgb;
     //vec3 specular = light.specular * spec * texture(material.specular, texCoord).rgb;
-    vec3 ambient  = texture(material.diffuse, texCoord).rgb * light.ambient;
-    vec3 diffuse  = texture(material.diffuse, texCoord).rgb * light.diffuse  * diff;
-    vec3 specular = texture(material.specular, texCoord).rgb * light.specular * spec;
+    vec3 ambient  = texture(material.diffuse, texCoord).rgb * material.color.xyz * light.ambient;
+    vec3 diffuse  = texture(material.diffuse, texCoord).rgb * material.color.xyz * light.diffuse  * diff;
+    vec3 specular = texture(material.specular, texCoord).rgb * material.color.xyz * light.specular * spec;
 
     ambient *= light.ambientStrength;
     diffuse *= light.directionalStrength;
@@ -110,9 +111,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     //vec3 ambient  = texture(material.diffuse, texCoord).rgb * light.ambient * light.ambientStrength;
     //vec3 diffuse  = light.diffuse  * diff * texture(material.diffuse, texCoord).rgb;
     //vec3 specular = light.specular * spec * texture(material.specular, texCoord).rgb;
-    vec3 ambient  = texture(material.diffuse, texCoord).rgb * light.ambient * light.ambientStrength;
-    vec3 diffuse  = texture(material.diffuse, texCoord).rgb * light.diffuse  * diff;
-    vec3 specular = texture(material.specular, texCoord).rgb * light.specular * spec;
+    vec3 ambient  = texture(material.diffuse, texCoord).rgb * material.color.rgb * light.ambient * light.ambientStrength;
+    vec3 diffuse  = texture(material.diffuse, texCoord).rgb * material.color.rgb * light.diffuse  * diff;
+    vec3 specular = texture(material.specular, texCoord).rgb * material.color.rgb * light.specular * spec;
 
     ambient  *= attenuation;
     diffuse  *= attenuation;
@@ -150,6 +151,6 @@ void main()
         result += CalcPointLight(pointLights[i], norm, fragPos, viewDir);   
     }
     
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(result, material.color.w);
     //FragColor = texture(material.diffuse, texCoord);
 }

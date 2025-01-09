@@ -36,6 +36,9 @@
     <None Include="Shaders\light_cube.frag">
       <Filter>Arquivos de Recurso\Shaders</Filter>
     </None>
+    <None Include="Shaders\depthTest.frag">
+      <Filter>Arquivos de Recurso\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">

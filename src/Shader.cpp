@@ -55,9 +55,9 @@ Shader::Shader(const GameObject& parent, const int diffuseMapIndex, const int sp
 
 	// Directional light
 	SetVec3("dirLight.direction", Lighting::directional);
-	SetVec3("dirLight.ambient", Lighting::ambient);
-	SetVec3("dirLight.diffuse", Lighting::diffuse);
-	SetVec3("dirLight.specular", Lighting::specular);
+	SetVec3("dirLight.ambient", Lighting::lightColor);
+	SetVec3("dirLight.diffuse", Lighting::lightColor);
+	SetVec3("dirLight.specular", Lighting::lightColor);
 
 	SetFloat("dirLight.ambientStrength", Lighting::ambientStrength);
 	SetFloat("dirLight.directionalStrength", Lighting::dirStrength);
@@ -73,10 +73,10 @@ Shader::Shader(const GameObject& parent, const int diffuseMapIndex, const int sp
 		SetFloat(current + "linear", 0.22f);
 		SetFloat(current + "quadratic", 0.20f);
 
-		SetVec3(current + "ambient", Lighting::ambient);
+		SetVec3(current + "ambient", Lighting::lightColor);
 		SetFloat(current + "ambientStrength", Lighting::ambientStrength);
-		SetVec3(current + "diffuse", Lighting::diffuse);
-		SetVec3(current + "specular", Lighting::specular);
+		SetVec3(current + "diffuse", Lighting::lightColor);
+		SetVec3(current + "specular", Lighting::lightColor);
 	}
 
 	/* Point light distance values

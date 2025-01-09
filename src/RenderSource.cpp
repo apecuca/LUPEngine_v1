@@ -14,8 +14,16 @@
 #include "Lighting.hpp"
 
 RenderSource::RenderSource(GameObject& parent) :
-	Component(parent)
+	Component(parent),
+    shaderID {0},
+    modelMat { glm::mat4(1.0f) },
+    projMat { glm::mat4(1.0f) },
+    viewMat { glm::mat4(1.0f) }
 {
+    // Material
+    color = glm::vec4(1.0f);
+    shininess = 32.0f;
+
 	LUPEngine::AddRenderSource(*this);
 }
 
@@ -94,13 +102,17 @@ void RenderSource::ConfigShader(const char* vertexFile, const char* fragmentFile
     SetMat4("view", viewMat);
     SetMat4("projection", projMat);
     SetMat4("model", modelMat);
+
+    // Material
     SetBool("material.hasSpecular", false);
+    SetVec4("material.color", color);
+    SetFloat("material.shininess", shininess);
 
     // Directional light
     SetVec3("dirLight.direction", Lighting::directional);
-    SetVec3("dirLight.ambient", Lighting::ambient);
-    SetVec3("dirLight.diffuse", Lighting::diffuse);
-    SetVec3("dirLight.specular", Lighting::specular);
+    SetVec3("dirLight.ambient", Lighting::lightColor);
+    SetVec3("dirLight.diffuse", Lighting::lightColor);
+    SetVec3("dirLight.specular", Lighting::lightColor);
 
     SetFloat("dirLight.ambientStrength", Lighting::ambientStrength);
     SetFloat("dirLight.directionalStrength", Lighting::dirStrength);
@@ -116,32 +128,20 @@ void RenderSource::ConfigShader(const char* vertexFile, const char* fragmentFile
         SetFloat(current + "linear", 0.22f);
         SetFloat(current + "quadratic", 0.20f);
 
-        SetVec3(current + "ambient", Lighting::ambient);
+        SetVec3(current + "ambient", Lighting::lightColor);
         SetFloat(current + "ambientStrength", Lighting::ambientStrength);
-        SetVec3(current + "diffuse", Lighting::diffuse);
-        SetVec3(current + "specular", Lighting::specular);
+        SetVec3(current + "diffuse", Lighting::lightColor);
+        SetVec3(current + "specular", Lighting::lightColor);
     }
 
     // Generate model
     std::string modelPath = "Resources/Models/" + static_cast<std::string>(modelFile);
     model = std::make_shared<Model>(modelPath, shaderID, false);
-
-    /*
-    Debug::Log("Meshes count: " + std::to_string(model->meshes.size()));
-    for (int i = 0; i < model->meshes.size(); i++)
-    {
-        std::string vertexCount = "Mesh ";
-        vertexCount += std::to_string(i);
-        vertexCount += " vertices: ";
-        vertexCount += std::to_string(model->meshes.at(i).vertices.size());
-        Debug::Log(vertexCount);
-    }
-    */
 }
 
 void RenderSource::Update()
 {
-	//
+    //
 }
 
 void RenderSource::Draw()
@@ -194,6 +194,9 @@ void RenderSource::Draw()
             SetFloat(current + "strength", 0.0f);
         }
     }
+
+    // Material data
+    SetVec4("material.color", color);
 
     // Chamar o draw do modelo
     model->Draw();

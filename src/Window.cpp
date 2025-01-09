@@ -42,17 +42,23 @@ void Window::InitWindow() {
 	// define o tamanho e origem do viewport
 	glViewport(0, 0, width, height);
 
-	// Profundidade
+	// Configuração do buffer de profundidade
 	glEnable(GL_DEPTH_TEST);
-	// Keeps front faces
-	glCullFace(GL_FRONT);
-	// Uses counter clock-wise standard
+	glDepthFunc(GL_LESS);
+
+	// Stencil buffer
+	glEnable(GL_STENCIL_TEST);
+	glStencilMask(0xFF);
+
+	// Face culling (priorizar os da frente e em ordem counter-clockwise) 
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
+
 	// Alpha blending
 	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Premultiplied alpha
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	// non-premultiplied alpha
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -65,7 +71,7 @@ void Window::ClearWindow()
 	// Define a cor de fundo
 	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 	// Desenha a cor de fundo por cima do buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void Window::SwapBuffers()

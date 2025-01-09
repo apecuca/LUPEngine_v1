@@ -47,7 +47,7 @@ void Model::LoadModel(std::string const& path)
 void Model::ProcessNode(aiNode* node, const aiScene* scene)
 {
     // Alocar espaço necessário para evitar cópias
-    int emptySpace = meshes.capacity() - meshes.size();
+    int emptySpace = static_cast<int>(meshes.capacity() - meshes.size());
     int allocNeeded = node->mNumMeshes + node->mNumChildren;
     if (allocNeeded > emptySpace)
     {
@@ -56,7 +56,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
     }
 
     // process each mesh located at the current node
-    for (int i = 0; i < node->mNumMeshes; i++)
+    for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         // the node object only contains indices to index the actual objects in the scene. 
         // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
@@ -68,7 +68,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
         meshes.emplace_back(newMeshData.vertices, newMeshData.indices, newMeshData.textures);
     }
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
-    for (int i = 0; i < node->mNumChildren; i++)
+    for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
         ProcessNode(node->mChildren[i], scene);
     }
@@ -89,7 +89,7 @@ Model::MeshData Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     MeshData newMesh;
 
     // walk through each of the mesh's vertices
-    for (int i = 0; i < mesh->mNumVertices; i++)
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
         glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
@@ -132,11 +132,11 @@ Model::MeshData Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
         newMesh.vertices.push_back(vertex);
     }
     // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
-    for (int i = 0; i < mesh->mNumFaces; i++)
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
         aiFace face = mesh->mFaces[i];
         // retrieve all indices of the face and store them in the indices vector
-        for (int j = 0; j < face.mNumIndices; j++)
+        for (unsigned int j = 0; j < face.mNumIndices; j++)
             newMesh.indices.push_back(face.mIndices[j]);
     }
     // process materials
@@ -199,7 +199,7 @@ std::vector<Texture> Model::LoadMaterialTextures(
     aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene)
 {
     std::vector<Texture> textures;
-    for (int i = 0; i < mat->GetTextureCount(type); i++)
+    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
     {
         aiString str;
         mat->GetTexture(type, i, &str);

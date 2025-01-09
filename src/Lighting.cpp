@@ -6,12 +6,15 @@
 std::vector<std::reference_wrapper<Pointlight>> Lighting::lightSources;
 
 glm::vec3 Lighting::directional = glm::vec3(-1.0f, -0.5f, -1.0);
+glm::vec3 Lighting::lightColor = glm::vec3(1.0f);
+/*
 glm::vec3 Lighting::ambient = glm::vec3(1.0f, 0.9568627f, 0.8392157f);
 glm::vec3 Lighting::diffuse = glm::vec3(1.0f, 0.9568627f, 0.8392157f);
 glm::vec3 Lighting::specular = glm::vec3(1.0f, 0.9568627f, 0.8392157f);
+*/
 
-float Lighting::ambientStrength = 0.1f;
-float Lighting::dirStrength = 0.25f;
+float Lighting::ambientStrength = 0.85f;
+float Lighting::dirStrength = 0.3f;
 
 void Lighting::AddLightSource(Pointlight& source)
 {

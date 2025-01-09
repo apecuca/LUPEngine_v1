@@ -28,13 +28,16 @@ LUPEngine::LUPEngine() :
 	// Instanciar objetos
 	GameObject& newObj2 = InstantiateObject();
 	newObj2.position = glm::vec3(0.0f, -0.5f, 0.0f);
-	newObj2.scale = glm::vec3(1.0f);
-	newObj2.AddComponent<RenderSource>()->ConfigShader(
+	newObj2.scale = glm::vec3(2.0f);
+	RenderSource& obj2Rend = *newObj2.AddComponent<RenderSource>();
+	obj2Rend.ConfigShader(
+		//"default.vert", "depthTest.frag", "Quirky animals/animals.gltf");
 		"default.vert", "default.frag", "Quirky animals/animals.gltf");
 		//"default.vert", "default.frag", "Skeleton/skeletonEmbedded.fbx");
 		//"default.vert", "default.frag", "cube.fbx");
 
 	// light cube 1
+	/*
 	GameObject& lightCube1 = InstantiateObject();
 	lightCube1.scale = glm::vec3(0.25f);
 	lightCube1.AddComponent<RenderSource>()->ConfigShader(
@@ -43,16 +46,7 @@ LUPEngine::LUPEngine() :
 	Pointlight& light1 = *lightCube1.AddComponent<Pointlight>();
 	light1.dir = 1.0f;
 	light1.floatDist = 2.27f;
-
-	// light cube 2
-	GameObject& lightCube2 = InstantiateObject();
-	lightCube2.scale = glm::vec3(0.25f);
-	lightCube2.AddComponent<RenderSource>()->ConfigShader(
-		"light_cube.vert", "light_cube.frag", "cube.fbx"
-	);
-	Pointlight& light2 = *lightCube2.AddComponent<Pointlight>();
-	light2.dir = -1.0f;
-	light2.floatDist = 2.27f;
+	*/
 
 	// Finish startup
 	Debug::Log("Engine succesfully started!");
@@ -72,6 +66,9 @@ void LUPEngine::run()
 		// Limpar fundo
 		window->ClearWindow();
 
+		// Renderizar Skybox
+		skybox.Render();
+
 		// Desenhar fontes de renderização
 		for (int i = 0; i < renderSources.size(); i++)
 		{
@@ -79,9 +76,6 @@ void LUPEngine::run()
 
 			renderSources.at(i).get().Draw();
 		}
-
-		// Renderizar Skybox
-		skybox.Render();
 
 		// Inverter os buffers de vídeo
 		window->SwapBuffers();

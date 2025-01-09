@@ -32,6 +32,10 @@ public:
     // Compilation error checks
     static void CheckCompileErrors(GLuint shader, std::string type);
 
+    // Material data
+    glm::vec4 color;
+    float shininess;
+
 private:
     GLuint shaderID;
 
