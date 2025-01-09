@@ -1,4 +1,5 @@
 #include "Mesh.hpp"
+#include "Debug.hpp"
 
 Mesh::Mesh(std::vector<Vertex> _vertices,
     std::vector<GLuint> _indices,
@@ -10,23 +11,25 @@ Mesh::Mesh(std::vector<Vertex> _vertices,
     SetupMesh();
 }
 
+Mesh::~Mesh()
+{
+    for (int i = 0; i < textures.size(); i++)
+    {
+        glDeleteTextures(1, &textures[i].id);
+    }
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+}
+
 void Mesh::Draw(GLuint shader)
 {
+    // Bindar todas as texturas
     for (int i = 0; i < textures.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
-
-        std::string name = textures[i].type;
-        std::string uniformName = "material.diffuse";
-        if (name == "texture_specular")
-            uniformName = "material.specular";
-        else if (name == "texture_normal")
-            uniformName = "material.normal";
-        else if (name == "texture_height")
-            uniformName = "material.height";
-        
-        glUniform1i(glGetUniformLocation(shader, (uniformName).c_str()), i);
     }
 
     // draw mesh
@@ -84,4 +87,31 @@ void Mesh::SetupMesh()
 
     // Unbind
     glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Mesh::SetupTextureUniforms(GLuint shaderID)
+{
+    for (int i = 0; i < textures.size(); i++)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, textures[i].id);
+
+        std::string name = textures[i].type;
+        std::string uniformName = "material.diffuse";
+        if (name == "texture_specular")
+        {
+            uniformName = "material.specular";
+            glUniform1i(glGetUniformLocation(shaderID, "material.hasSpecular"), (int)true);
+        }
+        else if (name == "texture_normal")
+            uniformName = "material.normal";
+        else if (name == "texture_height")
+            uniformName = "material.height";
+
+        glUniform1i(glGetUniformLocation(shaderID, (uniformName).c_str()), i);
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 }

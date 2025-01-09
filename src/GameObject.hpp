@@ -28,7 +28,7 @@ public:
 	GameObject& operator = (const GameObject& other) { return *this; }
 	GameObject& operator = (GameObject&& other) = default;
 
-	// Operação de comparação
+	// Operações de comparação
 	bool operator == (const GameObject& other) const
 	{
 		return (other.GetUniqueID() == this->GetUniqueID());

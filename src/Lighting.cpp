@@ -10,8 +10,8 @@ glm::vec3 Lighting::ambient = glm::vec3(1.0f, 0.9568627f, 0.8392157f);
 glm::vec3 Lighting::diffuse = glm::vec3(1.0f, 0.9568627f, 0.8392157f);
 glm::vec3 Lighting::specular = glm::vec3(1.0f, 0.9568627f, 0.8392157f);
 
-float Lighting::ambientStrength = 0.4f;
-float Lighting::dirStrength = 0.8f;
+float Lighting::ambientStrength = 0.1f;
+float Lighting::dirStrength = 0.25f;
 
 void Lighting::AddLightSource(Pointlight& source)
 {

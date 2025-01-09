@@ -60,7 +60,8 @@ void RenderSource::ConfigShader(const char* vertexFile, const char* fragmentFile
     catch (std::ifstream::failure& e)
     {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
-    }const char* vShaderCode = vertexCode.c_str();
+    }
+    const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
 
     // 2. compile shaders
@@ -93,6 +94,7 @@ void RenderSource::ConfigShader(const char* vertexFile, const char* fragmentFile
     SetMat4("view", viewMat);
     SetMat4("projection", projMat);
     SetMat4("model", modelMat);
+    SetBool("material.hasSpecular", false);
 
     // Directional light
     SetVec3("dirLight.direction", Lighting::directional);
@@ -122,7 +124,7 @@ void RenderSource::ConfigShader(const char* vertexFile, const char* fragmentFile
 
     // Generate model
     std::string modelPath = "Resources/Models/" + static_cast<std::string>(modelFile);
-    model = std::make_shared<Model>(modelPath, false);
+    model = std::make_shared<Model>(modelPath, shaderID, false);
 
     /*
     Debug::Log("Meshes count: " + std::to_string(model->meshes.size()));
@@ -194,7 +196,7 @@ void RenderSource::Draw()
     }
 
     // Chamar o draw do modelo
-    model->Draw(shaderID);
+    model->Draw();
 }
 
 //

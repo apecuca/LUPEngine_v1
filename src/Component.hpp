@@ -11,16 +11,14 @@ public:
 	// Constructors de cópia
 	//Component(const Component& other) {}
 	Component(const Component& other) :
-		gameObject{ other.gameObject },
-		uniqueID{ nextCreationID } {
-	}
+		Component(other.gameObject) {}
 	Component(Component&& other) = default;
 
 	// Operação de cópia
 	Component& operator = (const Component& other) { return *this; }
 	Component& operator = (Component&& other) = default;
 
-	// Operação de comparação
+	// Operações de comparação
 	bool operator == (const Component& other) const
 	{
 		return (other.GetUniqueID() == this->GetUniqueID());

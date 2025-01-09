@@ -39,15 +39,27 @@ struct Texture
 class Mesh
 {
 public:
+    // Default constructors
     Mesh(std::vector<Vertex> _vertices,
         std::vector<GLuint> _indices,
         std::vector<Texture> _textures);
-    ~Mesh() = default;
+    ~Mesh();
+
+    // Constructors de cópia
+    Mesh(const Mesh& other) :
+        Mesh(other.vertices, other.indices, other.textures) {};
+    Mesh(Mesh&& other) = default;
+
+    // Operação de cópia
+    Mesh& operator = (const Mesh& other) { return *this; }
+    Mesh& operator = (Mesh&& other) = default;
 
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     std::vector<Texture> textures;
     GLuint VAO;
+
+    void SetupTextureUniforms(GLuint shaderID);
 
     void Draw(GLuint shader);
 

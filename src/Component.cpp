@@ -66,7 +66,7 @@ void Pointlight::Update()
 
 	gameObject.position = glm::vec3(
 		sin(glfwGetTime()) * floatDist * dir,
-		sin(glfwGetTime()) * floatDist * dir,
+		0.0f,
 		cos(glfwGetTime()) * floatDist * dir);
 
 	/*

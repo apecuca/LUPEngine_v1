@@ -30,17 +30,29 @@ LUPEngine::LUPEngine() :
 	newObj2.position = glm::vec3(0.0f, -0.5f, 0.0f);
 	newObj2.scale = glm::vec3(1.0f);
 	newObj2.AddComponent<RenderSource>()->ConfigShader(
-		"default.vert", "default.frag", "Skeleton/skeleton.gltf");
+		"default.vert", "default.frag", "Quirky animals/animals.gltf");
+		//"default.vert", "default.frag", "skeletonEmbedded.glb");
+		//"default.vert", "default.frag", "cube.fbx");
 
-	/*
 	// light cube 1
 	GameObject& lightCube1 = InstantiateObject();
-	lightCube1.scale = glm::vec3(0.5f);
+	lightCube1.scale = glm::vec3(0.25f);
 	lightCube1.AddComponent<RenderSource>()->ConfigShader(
 		"light_cube.vert", "light_cube.frag", "cube.fbx"
 	);
-	lightCube1.AddComponent<Pointlight>()->dir = 1.0f;
-	*/
+	Pointlight& light1 = *lightCube1.AddComponent<Pointlight>();
+	light1.dir = 1.0f;
+	light1.floatDist = 2.27f;
+
+	// light cube 2
+	GameObject& lightCube2 = InstantiateObject();
+	lightCube2.scale = glm::vec3(0.25f);
+	lightCube2.AddComponent<RenderSource>()->ConfigShader(
+		"light_cube.vert", "light_cube.frag", "cube.fbx"
+	);
+	Pointlight& light2 = *lightCube2.AddComponent<Pointlight>();
+	light2.dir = -1.0f;
+	light2.floatDist = 2.27f;
 
 	// Finish startup
 	Debug::Log("Engine succesfully started!");

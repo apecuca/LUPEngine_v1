@@ -12,7 +12,7 @@ GLuint TextureFromFile(const char* path, const std::string& directory, bool gamm
 class Model
 {
 public:
-    Model(std::string const& path, bool gamma = false);
+    Model(std::string const& path, GLuint& shaderID, bool gamma = false);
     ~Model() = default;
 
     // Construtor de cópia
@@ -28,11 +28,20 @@ public:
     std::string directory;
     bool gammaCorrection;
 
-    void Draw(GLuint shader);
+    void Draw();
 
 private:
+    struct MeshData
+    {
+        std::vector<Vertex> vertices;
+        std::vector<GLuint> indices;
+        std::vector<Texture> textures;
+    };
+
     void LoadModel(std::string const& path);
     void ProcessNode(aiNode* node, const aiScene* scene);
-    Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
+    MeshData ProcessMesh(aiMesh* mesh, const aiScene* scene);
     std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+
+    GLuint& shader;
 };

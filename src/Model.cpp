@@ -3,13 +3,14 @@
 #include "Debug.hpp"
 #include "stb_image.h"
 
-Model::Model(std::string const& path, bool gamma) :
-	gammaCorrection {gamma}
+Model::Model(std::string const& path, GLuint& shaderID, bool gamma) :
+	gammaCorrection {gamma},
+    shader {shaderID}
 {
 	LoadModel(path);
 }
 
-void Model::Draw(GLuint shader)
+void Model::Draw()
 {
     for (int i = 0; i < meshes.size(); i++)
         meshes[i].Draw(shader);
@@ -45,27 +46,47 @@ void Model::LoadModel(std::string const& path)
 // at the node and repeats this process on its children nodes (if any).
 void Model::ProcessNode(aiNode* node, const aiScene* scene)
 {
+    // Alocar espaço necessário para evitar cópias
+    int emptySpace = meshes.capacity() - meshes.size();
+    int allocNeeded = node->mNumMeshes + node->mNumChildren;
+    if (allocNeeded > emptySpace)
+    {
+        int nextAlloc = allocNeeded - emptySpace;
+        meshes.reserve(nextAlloc);
+    }
+
     // process each mesh located at the current node
     for (int i = 0; i < node->mNumMeshes; i++)
     {
         // the node object only contains indices to index the actual objects in the scene. 
         // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
-        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(ProcessMesh(mesh, scene));
+        //aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        //meshes.push_back(ProcessMesh(mesh, scene));
+
+        // Processar informação da Mesh e copiar para uma nova instância
+        MeshData newMeshData = ProcessMesh(scene->mMeshes[node->mMeshes[i]], scene);
+        meshes.emplace_back(newMeshData.vertices, newMeshData.indices, newMeshData.textures);
     }
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
     for (int i = 0; i < node->mNumChildren; i++)
     {
         ProcessNode(node->mChildren[i], scene);
     }
+
+    // Fazer setup das texturas das meshes
+    for (int i = 0; i < meshes.size(); i++)
+    {
+        meshes[i].SetupTextureUniforms(shader);
+    }
 }
 
-Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+Model::MeshData Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 {
     // data to fill
-    std::vector<Vertex> vertices;
-    std::vector<GLuint> indices;
-    std::vector<Texture> textures;
+    //std::vector<Vertex> vertices;
+    //std::vector<GLuint> indices;
+    //std::vector<Texture> textures;
+    MeshData newMesh;
 
     // walk through each of the mesh's vertices
     for (int i = 0; i < mesh->mNumVertices; i++)
@@ -108,7 +129,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
         else
             vertex.TexCoords = glm::vec2(0.0f, 0.0f);
 
-        vertices.push_back(vertex);
+        newMesh.vertices.push_back(vertex);
     }
     // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
     for (int i = 0; i < mesh->mNumFaces; i++)
@@ -116,7 +137,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
         aiFace face = mesh->mFaces[i];
         // retrieve all indices of the face and store them in the indices vector
         for (int j = 0; j < face.mNumIndices; j++)
-            indices.push_back(face.mIndices[j]);
+            newMesh.indices.push_back(face.mIndices[j]);
     }
     // process materials
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -135,26 +156,41 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
         embedded = true;
         */
 
-    // 1. diffuse maps
-    std::vector<Texture> diffuseMaps = LoadMaterialTextures(
-        material, aiTextureType_DIFFUSE, "texture_diffuse");
-    textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+    if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+    {
+        // 1. diffuse maps
+        std::vector<Texture> diffuseMaps = LoadMaterialTextures(
+            material, aiTextureType_DIFFUSE, "texture_diffuse");
+        newMesh.textures.insert(newMesh.textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-    /*
-    // 2. specular maps
-    std::vector<Texture> specularMaps = LoadMaterialTextures(
-        material, aiTextureType_SPECULAR, "texture_specular", embedded);
-    textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    // 3. normal maps
-    std::vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-    textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    // 4. height maps
-    std::vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-    textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-    */
+        // 2. specular maps
+        std::vector<Texture> specularMaps = LoadMaterialTextures(
+            material, aiTextureType_SPECULAR, "texture_specular");
+        newMesh.textures.insert(newMesh.textures.end(), specularMaps.begin(), specularMaps.end());
+
+        // 3. normal maps
+        std::vector<Texture> normalMaps = LoadMaterialTextures(
+            material, aiTextureType_HEIGHT, "texture_normal");
+        newMesh.textures.insert(newMesh.textures.end(), normalMaps.begin(), normalMaps.end());
+
+        // 4. height maps
+        std::vector<Texture> heightMaps = LoadMaterialTextures(
+            material, aiTextureType_AMBIENT, "texture_height");
+        newMesh.textures.insert(newMesh.textures.end(), heightMaps.begin(), heightMaps.end());
+    }
+    else
+    {
+        // Load default diffuse texture
+        Texture defaultTex;
+        defaultTex.id = TextureFromFile("default_tex.png", "Resources/Images");
+        defaultTex.type = "texture_diffuse";
+        defaultTex.path = "default_tex.png";
+        newMesh.textures.push_back(defaultTex);
+    }
+    
 
     // return a mesh object created from the extracted mesh data
-    return Mesh(vertices, indices, textures);
+    return newMesh;
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
@@ -184,7 +220,9 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
             // Embedded texture warning
             if (str.data[0] == '*')
             {
-                Debug::Log("Embedded textures are not supported");
+                std::string errMsg = "Embedded textures are not supported. Material name: ";
+                errMsg += mat->GetName().C_Str();
+                Debug::Log(errMsg);
             }
 
             texture.id = TextureFromFile(str.C_Str(), this->directory);
