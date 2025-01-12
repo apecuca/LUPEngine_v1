@@ -9,6 +9,9 @@
 #include "glad/glad.h"
 #include "glm/glm.hpp"
 
+// LUPengine
+#include "Shader.hpp"
+
 #define MAX_BONE_INFLUENCE 4
 
 struct Vertex
@@ -59,9 +62,9 @@ public:
     std::vector<Texture> textures;
     GLuint VAO;
 
-    void SetupTextureUniforms(GLuint shaderID);
+    void SetupTextureUniforms(const Shader& shader);
 
-    void Draw(GLuint shader);
+    void Draw();
 
 private:
     GLuint VBO, EBO;

@@ -13,7 +13,7 @@ GLuint EmbeddedTexture(void* pData, int bufferSize);
 class Model
 {
 public:
-    Model(std::string const& path, GLuint& shaderID, bool gamma = false);
+    Model(std::string const& path, Shader& parentShader, bool gamma = false);
     ~Model() = default;
 
     // Construtor de cópia
@@ -45,5 +45,5 @@ private:
     std::vector<Texture> LoadMaterialTextures(
         aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene);
 
-    GLuint& shader;
+    Shader& shader;
 };

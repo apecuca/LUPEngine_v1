@@ -29,7 +29,8 @@ Skybox::Skybox(const std::string rightFile, const std::string leftFile,
     cubemapFaces[5] = "Resources/Skybox/" + backFile;
 
     // Configurar, gerar buffers e texturas
-	ConfigSkybox();
+	//ConfigSkybox();
+    shader = std::make_shared<Shader>("skybox.vert", "skybox.frag");
 	GenerateBufferObjs();
 	GenerateTextures();
 
@@ -45,8 +46,6 @@ Skybox::~Skybox()
 	glDeleteBuffers(1, &VBO);
 
 	glDeleteTextures(1, &cubemapTex);
-
-	glDeleteProgram(ID);
 }
 
 void Skybox::Render()
@@ -56,7 +55,8 @@ void Skybox::Render()
     glDepthFunc(GL_LEQUAL); 
     
     // Bindar programa
-    glUseProgram(ID);
+    //glUseProgram(ID);
+    shader->Use();
 
     // Matriz de projeção
     projecMat = glm::perspective(glm::radians(Camera::GetInstance().fov),
@@ -66,8 +66,8 @@ void Skybox::Render()
     viewMat = glm::mat4(glm::mat3(Camera::GetInstance().GetViewMatrix()));
 
     // Atualizar matrizes
-    SetMat4("view", viewMat);
-    SetMat4("projection", projecMat);
+    shader->SetMat4("view", viewMat);
+    shader->SetMat4("projection", projecMat);
 
     // Draw
     glBindVertexArray(VAO);
@@ -81,6 +81,7 @@ void Skybox::Render()
 
 }
 
+/*
 void Skybox::ConfigSkybox()
 {
     // Isso aqui tá dentro da função pq provavelmente
@@ -128,25 +129,26 @@ void Skybox::ConfigSkybox()
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
-    RenderSource::CheckCompileErrors(vertex, "VERTEX");
+    Shader::CheckCompileErrors(vertex, "VERTEX");
 
     // fragment Shader
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
-    RenderSource::CheckCompileErrors(fragment, "FRAGMENT");
+    Shader::CheckCompileErrors(fragment, "FRAGMENT");
 
     // shader Program
     ID = glCreateProgram();
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
     glLinkProgram(ID);
-    RenderSource::CheckCompileErrors(ID, "PROGRAM");
+    Shader::CheckCompileErrors(ID, "PROGRAM");
 
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 }
+*/
 
 void Skybox::GenerateBufferObjs()
 {
@@ -245,16 +247,6 @@ void Skybox::GenerateTextures()
     }
 
     // Indicar em qual camada do programa está a textura
-    glUseProgram(ID);
-    SetInt("skybox", 0);
-}
-
-void Skybox::SetInt(const std::string& name, int value) const
-{
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
-}
-
-void Skybox::SetMat4(const std::string& name, const glm::mat4& mat) const
-{
-    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    shader->Use();
+    shader->SetInt("skybox", 0);
 }

@@ -8,6 +8,8 @@
 // Lib de matemática
 #include <glm/glm.hpp>
 
+#include "Shader.hpp"
+
 class Skybox
 {
 public:
@@ -24,7 +26,8 @@ public:
 
 	void Render();
 private:
-	GLuint ID;
+	//GLuint ID;
+	std::shared_ptr<Shader> shader;
 	GLuint VAO, VBO;
 	GLuint cubemapTex;
 
@@ -33,10 +36,7 @@ private:
     glm::mat4 projecMat;
     glm::mat4 viewMat;
 
-	void ConfigSkybox();
+	//void ConfigSkybox();
 	void GenerateBufferObjs();
 	void GenerateTextures();
-
-    void SetInt(const std::string& name, int value) const;
-    void SetMat4(const std::string& name, const glm::mat4& mat) const;
 };

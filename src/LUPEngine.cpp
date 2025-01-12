@@ -16,7 +16,6 @@
 int LUPEngine::WIDTH = 800;
 int LUPEngine::HEIGHT = 800;
 std::vector<GameObject> LUPEngine::instantiatedObjs;
-std::vector <std::reference_wrapper<RenderSource>> LUPEngine::renderSources;
 
 LUPEngine::LUPEngine() : 
 	window { std::make_unique<Window>(WIDTH, HEIGHT, "LUPEngine example") }
@@ -26,18 +25,18 @@ LUPEngine::LUPEngine() :
 	stbi_set_flip_vertically_on_load(false);
 
 	// Instanciar objetos
-	GameObject& newObj2 = InstantiateObject();
-	newObj2.position = glm::vec3(0.0f, -0.5f, 0.0f);
-	newObj2.scale = glm::vec3(2.0f);
-	RenderSource& obj2Rend = *newObj2.AddComponent<RenderSource>();
-	obj2Rend.ConfigShader(
+	GameObject& newObj = InstantiateObject();
+	newObj.position = glm::vec3(0.0f, -0.5f, 0.0f);
+	newObj.scale = glm::vec3(2.0f);
+	RenderSource& objRend = *newObj.AddComponent<RenderSource>();
+	objRend.ConfigShader(
 		//"default.vert", "depthTest.frag", "Quirky animals/animals.gltf");
 		"default.vert", "default.frag", "Quirky animals/animals.gltf");
 		//"default.vert", "default.frag", "Skeleton/skeletonEmbedded.fbx");
 		//"default.vert", "default.frag", "cube.fbx");
+	//objRend.color.a = 0.75f;
 
 	// light cube 1
-	/*
 	GameObject& lightCube1 = InstantiateObject();
 	lightCube1.scale = glm::vec3(0.25f);
 	lightCube1.AddComponent<RenderSource>()->ConfigShader(
@@ -46,7 +45,6 @@ LUPEngine::LUPEngine() :
 	Pointlight& light1 = *lightCube1.AddComponent<Pointlight>();
 	light1.dir = 1.0f;
 	light1.floatDist = 2.27f;
-	*/
 
 	// Finish startup
 	Debug::Log("Engine succesfully started!");
@@ -69,13 +67,7 @@ void LUPEngine::run()
 		// Renderizar Skybox
 		skybox.Render();
 
-		// Desenhar fontes de renderização
-		for (int i = 0; i < renderSources.size(); i++)
-		{
-			if (!renderSources.at(i).get().enabled) continue;
-
-			renderSources.at(i).get().Draw();
-		}
+		Rendering::Render();
 
 		// Inverter os buffers de vídeo
 		window->SwapBuffers();
@@ -113,23 +105,7 @@ void LUPEngine::DestroyObject(GameObject& obj)
 	{
 		if (instantiatedObjs.at(i) != obj)
 			continue;
-			
+
 		instantiatedObjs.erase(instantiatedObjs.begin() + i);
-	}
-}
-
-void LUPEngine::AddRenderSource(RenderSource& source)
-{
-	renderSources.emplace_back(source);
-}
-
-void LUPEngine::RemoveRenderSource(RenderSource& source)
-{
-	for (int i = 0; i < renderSources.size(); i++)
-	{
-		if (renderSources.at(i) != source)
-			continue;
-
-		renderSources.erase(renderSources.begin() + i);
 	}
 }

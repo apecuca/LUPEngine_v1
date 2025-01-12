@@ -9,6 +9,7 @@
 #include "Camera.hpp"
 #include "Skybox.hpp"
 #include "RenderSource.hpp"
+#include "Rendering.hpp"
 
 class RenderSource;
 
@@ -38,12 +39,6 @@ class LUPEngine
 		// Retorna a quantidade de objetos instanciados
 		static inline int GetObjectCount() { return static_cast<int>(instantiatedObjs.size()); }
 
-		// Renderização
-		// Adiciona uma nova fonte de renderização
-		static void AddRenderSource(RenderSource& source);
-		// Remove uma fonte de renderização
-		static void RemoveRenderSource(RenderSource& source);
-
 	private:
 		// No futuro, trocar isso aqui pra um pointer
 		// e iniciar ela em um método Init, ou no construtor.
@@ -53,9 +48,6 @@ class LUPEngine
 
 		// Lista de objetos instancidos
 		static std::vector<GameObject> instantiatedObjs;
-
-		// Lista de renderers
-		static std::vector <std::reference_wrapper<RenderSource>> renderSources;
 
 		// Objetos para teste
 		Camera camObj;

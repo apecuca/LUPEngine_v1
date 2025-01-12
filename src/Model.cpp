@@ -3,9 +3,9 @@
 #include "Debug.hpp"
 #include "stb_image.h"
 
-Model::Model(std::string const& path, GLuint& shaderID, bool gamma) :
+Model::Model(std::string const& path, Shader& parentShader, bool gamma) :
 	gammaCorrection {gamma},
-    shader {shaderID}
+    shader {parentShader}
 {
 	LoadModel(path);
 }
@@ -13,7 +13,7 @@ Model::Model(std::string const& path, GLuint& shaderID, bool gamma) :
 void Model::Draw()
 {
     for (int i = 0; i < meshes.size(); i++)
-        meshes[i].Draw(shader);
+        meshes[i].Draw();
 }
 
 // loads a model with supported ASSIMP extensions from file 

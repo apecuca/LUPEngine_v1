@@ -23,8 +23,10 @@ Mesh::~Mesh()
     glDeleteBuffers(1, &EBO);
 }
 
-void Mesh::Draw(GLuint shader)
+void Mesh::Draw()
 {
+    //shader.Use();
+
     // Bindar todas as texturas
     for (int i = 0; i < textures.size(); i++)
     {
@@ -91,8 +93,10 @@ void Mesh::SetupMesh()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Mesh::SetupTextureUniforms(GLuint shaderID)
+void Mesh::SetupTextureUniforms(const Shader& shader)
 {
+    shader.Use();
+
     for (int i = 0; i < textures.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i);
@@ -103,14 +107,16 @@ void Mesh::SetupTextureUniforms(GLuint shaderID)
         if (name == "texture_specular")
         {
             uniformName = "material.specular";
-            glUniform1i(glGetUniformLocation(shaderID, "material.hasSpecular"), (int)true);
+            //glUniform1i(glGetUniformLocation(shaderID, "material.hasSpecular"), (int)true);
+            shader.SetBool("material.hasSpecular", (int)true);
         }
         else if (name == "texture_normal")
             uniformName = "material.normal";
         else if (name == "texture_height")
             uniformName = "material.height";
 
-        glUniform1i(glGetUniformLocation(shaderID, (uniformName).c_str()), i);
+        shader.SetInt((uniformName).c_str(), i);
+        //glUniform1i(glGetUniformLocation(shaderID, (uniformName).c_str()), i);
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
