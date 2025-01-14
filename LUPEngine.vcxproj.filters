@@ -39,6 +39,12 @@
     <None Include="Shaders\depthTest.frag">
       <Filter>Arquivos de Recurso\Shaders</Filter>
     </None>
+    <None Include="Shaders\framebuffer.frag">
+      <Filter>Arquivos de Recurso\Shaders</Filter>
+    </None>
+    <None Include="Shaders\framebuffer.vert">
+      <Filter>Arquivos de Recurso\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">

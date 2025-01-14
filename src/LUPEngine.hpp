@@ -44,7 +44,7 @@ class LUPEngine
 		// e iniciar ela em um método Init, ou no construtor.
 		// Por enquanto, a janela (variável abaixo) é criada junto com este objeto
 		//Window window{ WIDTH, HEIGHT, "LUPEngine example" };
-		std::unique_ptr<Window> window;
+		std::shared_ptr<Window> window;
 
 		// Lista de objetos instancidos
 		static std::vector<GameObject> instantiatedObjs;

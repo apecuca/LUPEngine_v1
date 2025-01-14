@@ -3,6 +3,7 @@
 #include "LUPEngine.hpp"
 #include "Debug.hpp"
 #include "Input.hpp"
+#include "Rendering.hpp"
 
 // constructor
 Window::Window(int w, int h, std::string name) : width{ w }, height{ h }, windowName{ name }
@@ -43,7 +44,6 @@ void Window::InitWindow() {
 	glViewport(0, 0, width, height);
 
 	// Configuração do buffer de profundidade
-	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
 	// Stencil buffer
@@ -81,11 +81,22 @@ void Window::SwapBuffers()
 	glfwSwapBuffers(windowPtr);
 }
 
+void Window::SetDepthTest(bool vl)
+{
+	if (vl)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+}
+
 void Window::callback_windowResize(GLFWwindow* window, int width, int height)
 {
 	// Atualizar variável de tamanho
 	LUPEngine::HEIGHT = height;
 	LUPEngine::WIDTH = width;
+
+	// Atualizar dimensões do framebuffer e renderbuffer
+	Rendering::ResizeFramebuffer();
 
 	// Atualizar viewport
 	glViewport(0, 0, width, height);

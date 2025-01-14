@@ -17,6 +17,7 @@ class Window {
 
 		void ClearWindow();
 		void SwapBuffers();
+		void SetDepthTest(bool vl);
 
 	private:
 		void InitWindow();

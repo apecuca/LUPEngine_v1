@@ -18,10 +18,11 @@ int LUPEngine::HEIGHT = 800;
 std::vector<GameObject> LUPEngine::instantiatedObjs;
 
 LUPEngine::LUPEngine() : 
-	window { std::make_unique<Window>(WIDTH, HEIGHT, "LUPEngine example") }
+	window { std::make_shared<Window>(WIDTH, HEIGHT, "LUPEngine example") }
 {
 	// Inicialização
 	Input::InitInput(window->getWindowPtr());
+	Rendering::Init(true);
 	stbi_set_flip_vertically_on_load(false);
 
 	// Instanciar objetos
@@ -34,7 +35,6 @@ LUPEngine::LUPEngine() :
 		"default.vert", "default.frag", "Quirky animals/animals.gltf");
 		//"default.vert", "default.frag", "Skeleton/skeletonEmbedded.fbx");
 		//"default.vert", "default.frag", "cube.fbx");
-	//objRend.color.a = 0.75f;
 
 	// light cube 1
 	GameObject& lightCube1 = InstantiateObject();
@@ -44,7 +44,7 @@ LUPEngine::LUPEngine() :
 	);
 	Pointlight& light1 = *lightCube1.AddComponent<Pointlight>();
 	light1.dir = 1.0f;
-	light1.floatDist = 2.27f;
+	light1.floatDist = 0.1f;
 
 	// Finish startup
 	Debug::Log("Engine succesfully started!");
@@ -60,21 +60,34 @@ LUPEngine::~LUPEngine()
 
 void LUPEngine::run()
 {
-	while (!window->shouldClose()) {
-		// Limpar fundo
-		window->ClearWindow();
-
-		// Renderizar Skybox
-		skybox.Render();
-
-		Rendering::Render();
-
-		// Inverter os buffers de vídeo
-		window->SwapBuffers();
+	while (!window->shouldClose())
+	{
+		Rendering::Render(window, skybox);
 
 		// Atualizar variáveis
 		Input::UpdateInput();
 		Time::UpdateTimeVars();
+
+		// Extras temporários
+		if (Input::GetKeyDown(GLFW_KEY_KP_0))
+			Rendering::GetScreenShader()->SetInt("postprocessingFxIndex", 0);
+		if (Input::GetKeyDown(GLFW_KEY_KP_1))
+			Rendering::GetScreenShader()->SetInt("postprocessingFxIndex", 1);
+		if (Input::GetKeyDown(GLFW_KEY_KP_2))
+			Rendering::GetScreenShader()->SetInt("postprocessingFxIndex", 2);
+		if (Input::GetKeyDown(GLFW_KEY_KP_3))
+			Rendering::GetScreenShader()->SetInt("postprocessingFxIndex", 3);
+		if (Input::GetKeyDown(GLFW_KEY_KP_4))
+			Rendering::GetScreenShader()->SetInt("postprocessingFxIndex", 4);
+		if (Input::GetKeyDown(GLFW_KEY_KP_5))
+			Rendering::GetScreenShader()->SetInt("postprocessingFxIndex", 5);
+		if (Input::GetKeyDown(GLFW_KEY_KP_6))
+			Rendering::GetScreenShader()->SetInt("postprocessingFxIndex", 6);
+		if (Input::GetKeyDown(GLFW_KEY_KP_7))
+			Rendering::GetScreenShader()->SetInt("postprocessingFxIndex", 7);
+		if (Input::GetKeyDown(GLFW_KEY_KP_ADD))
+			Rendering::postProcessing = !Rendering::postProcessing;
+		//
 
 		// Simular objetos
 		for (int i = 0; i < instantiatedObjs.size(); i++)

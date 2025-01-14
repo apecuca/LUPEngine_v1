@@ -74,61 +74,6 @@ Shader::~Shader()
 	glDeleteShader(ID);
 }
 
-/*
-void Shader::Draw(const GameObject& parentObj)
-{
-    Camera& cam = Camera::GetInstance();
-
-    Use();
-
-    // Matriz de projecao
-    projMat = glm::perspective(glm::radians(cam.fov),
-        (float)LUPEngine::WIDTH / (float)LUPEngine::HEIGHT,
-        0.1f, 100.0f);
-    viewMat = cam.GetViewMatrix();
-    SetMat4("projection", projMat);
-
-    // Matriz de visualização
-    viewMat = Camera::GetInstance().GetViewMatrix();
-    SetMat4("view", viewMat);
-
-    // Matriz de modelo
-    modelMat = glm::mat4(1.0f);
-    modelMat = glm::translate(modelMat, parentObj.position);
-    if (glm::length(parentObj.rotation) != 0)
-    {
-        modelMat = glm::rotate(modelMat,
-            glm::radians(glm::length(parentObj.rotation)),
-            glm::normalize(GetCorrectedRotation(parentObj)));
-    }
-    modelMat = glm::scale(modelMat, parentObj.scale);
-    SetMat4("model", modelMat);
-
-    // Posição da câmera
-    SetVec3("viewPos", Camera::GetInstance().position);
-
-    // Point light
-    std::vector<glm::vec3> lightSources = Lighting::GetLightSources();
-    for (int i = 0; i < 10; i++)
-    {
-        std::string current = "pointLights[" + std::to_string(i) + "].";
-
-        if (i < lightSources.size())
-        {
-            SetVec3(current + "position", Lighting::GetLightSources().at(i));
-            SetFloat(current + "strength", 1.0f);
-        }
-        else
-        {
-            SetFloat(current + "strength", 0.0f);
-        }
-    }
-
-    // Material data
-    SetVec4("material.color", color);
-}
-*/
-
 //
 // Shader Utilities
 //
