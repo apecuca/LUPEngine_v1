@@ -29,10 +29,6 @@ void Rendering::Init(bool enablePostProcessing)
 	// Lidar com pós processamento
 	GeneratePostProcessing();
 
-	// Desbindar tudo
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
 	// Atualizar shader
 	screenShader->Use();
 	// Bindar textura
